@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>LATIHAN SOAL PPPK TEKNIS KPU</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: maroon;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        .question-container {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            background-color: maroon;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #timer {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: maroon;
+            text-align: right;
+        }
+        #result {
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #444;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>LATIHAN SOAL PPPK TEKNIS KPU</h1>
+    </header>
+    <div class="container">
+        <div id="timer">Sisa waktu: 30:00</div>
+        <button id="start-btn" onclick="startQuiz()">Mulai Kuis</button><div id="quiz-container"></div>
+        <button id="prev-btn" onclick="prevQuestion()">Soal Sebelumnya</button> <button id="next-btn" onclick="nextQuestion()">Soal Selanjutnya</button>
+<button id="submit-btn" onclick="endQuiz()" style="display:none; background-color:green; color:white;">Kirim Jawaban</button>
+        <div id="result" style="text-align: left;"></div>
+    </div>
+
+    <script>
+        const quizData = [
+{question: "Apa tugas DKPP?", options: ["Menyelenggarakan pemilu", "Menetapkan hasil pemilu", "Menerima dan memutus laporan pelanggaran kode etik penyelenggara pemilu", "Mengawasi kampanye"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Kapan tahapan penyelenggaraan pemilu dimulai?", options: ["12 bulan sebelum pemilu", "24 bulan sebelum pemilu", "20 bulan sebelum hari pemungutan suara", "6 bulan sebelum pemilu"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Kapan pemungutan suara di luar negeri dilaksanakan?", options: ["Setelah pemilu dalam negeri", "Harus bersamaan dengan pemilu dalam negeri", "Dapat bersamaan atau sebelum hari pemungutan suara di dalam negeri", "Hanya setelah perhitungan suara"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa syarat kepengurusan partai politik untuk menjadi peserta pemilu?", options: ["100% kabupaten/kota di Indonesia", "Kepengurusan di seluruh provinsi dan 75% kabupaten/kota", "Hanya pengurus pusat", "Minimal 25% kecamatan"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Berapa jumlah tahapan pemilu menurut UU?", options: ["7", "9", "10", "11"], answer: 3, explanation: "[Penjelasan belum tersedia]"},
+{question: "Pencegahan dan penindakan atas sengketa proses pemilu adalah tugas siapa?", options: ["KPU", "Bawaslu", "Mahkamah Konstitusi", "DKPP"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Tahapan Pemilu diatur dalam...?", options: ["Pasal 93", "Pasal 176", "Pasal 167", "Pasal 183"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Kapan pendaftaran partai politik ditetapkan?", options: ["18 bulan sebelum pemungutan suara", "20 bulan sebelum pemilu", "Setelah masa kampanye", "14 bulan sebelum pemilu"], answer: 0, explanation: "[Penjelasan belum tersedia]"},
+{question: "Kapan partai politik ditetapkan sebagai peserta pemilu?", options: ["12 bulan sebelum pemilu", "18 bulan sebelum pemilu", "14 bulan sebelum hari pemungutan suara", "20 bulan sebelum pemilu"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Berapa jumlah dukungan minimal calon DPD di provinsi dengan penduduk hingga 1 juta?", options: ["500 pemilih", "1.000 pemilih", "2.000 pemilih", "750 pemilih"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa yang dimaksud dengan masa tenang dalam pemilu?", options: ["Masa kampanye intensif", "Hari libur nasional", "Waktu menjelang hari pemungutan suara tanpa kampanye", "Waktu penghitungan suara"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa batas usia minimal calon anggota DPD?", options: ["17 tahun", "21 tahun", "25 tahun", "30 tahun"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Lembaga yang berwenang menyelesaikan sengketa hasil pemilu presiden adalah...?", options: ["KPU", "Bawaslu", "Mahkamah Agung", "Mahkamah Konstitusi"], answer: 3, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa yang dilakukan pada tahap rekapitulasi suara?", options: ["Kampanye", "Pemungutan suara", "Penetapan calon", "Penghitungan hasil dari seluruh TPS"], answer: 3, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa arti dari pemilu serentak?", options: ["Dilakukan setiap minggu", "Hanya satu jenis pemilu", "Dilaksanakan dalam satu waktu untuk beberapa jenis pemilu", "Hanya melibatkan satu provinsi"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang bertanggung jawab terhadap logistik pemilu?", options: ["DKPP", "KPU", "Bawaslu", "Presiden"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa tujuan kampanye pemilu?", options: ["Menyebarkan hoaks", "Mempengaruhi pemilih secara ilegal", "Meningkatkan partisipasi pemilih secara sadar", "Menjatuhkan lawan politik"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Berapa lama masa jabatan anggota KPU pusat?", options: ["3 tahun", "5 tahun", "7 tahun", "8 tahun"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang mengesahkan perolehan suara pemilu secara nasional?", options: ["Presiden", "Mahkamah Agung", "KPU", "DPR"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa jenis sanksi terhadap pelanggaran administrasi pemilu?", options: ["Pidana langsung", "Teguran dan pembatalan keikutsertaan", "Pencabutan KTP", "Diskualifikasi calon presiden"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa fungsi utama Mahkamah Konstitusi dalam pemilu?", options: ["Mengawasi pemilu", "Menetapkan calon presiden", "Menyelesaikan sengketa hasil pemilu", "Melantik pejabat KPU"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa syarat minimal usia pemilih dalam pemilu?", options: ["15 tahun", "16 tahun", "17 tahun", "18 tahun"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa kepanjangan dari KPU?", options: ["Komite Pemilihan Umum", "Komisi Pemilu Umum", "Komisi Pemilihan Umum", "Komando Pemilu Utama"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa bentuk partisipasi masyarakat dalam pemilu?", options: ["Golput", "Menghindari TPS", "Mengikuti kampanye tanpa suara", "Memberikan suara"], answer: 3, explanation: "[Penjelasan belum tersedia]"},
+{question: "Berapa jumlah maksimal calon anggota DPR dari satu dapil?", options: ["5 orang", "10 orang", "7 orang", "3 orang"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa yang dilakukan KPU saat masa kampanye?", options: ["Menetapkan pemenang", "Menghentikan kampanye", "Mengatur dan mengawasi kampanye", "Melantik presiden"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa peran saksi dalam pemilu?", options: ["Menjadi juru bicara partai", "Mengawasi jalannya kampanye", "Menyampaikan visi misi calon", "Menyaksikan dan mengawal proses pemungutan dan penghitungan suara"], answer: 3, explanation: "[Penjelasan belum tersedia]"},
+{question: "Berapa batas usia maksimal calon presiden menurut UU?", options: ["Tidak dibatasi", "60 tahun", "70 tahun", "75 tahun"], answer: 0, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa tujuan pemilu?", options: ["Menciptakan konflik", "Memilih pemimpin dan wakil rakyat secara demokratis", "Menurunkan pemerintahan", "Memperkuat kekuasaan tertentu"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang berwenang menetapkan daftar pemilih tetap (DPT)?", options: ["Bawaslu", "Kementerian Dalam Negeri", "KPU", "Partai Politik"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa yang dimaksud dengan pemilu legislatif?", options: ["Pemilihan presiden", "Pemilihan anggota DPR dan DPRD", "Pemilihan kepala daerah", "Pemilihan ketua KPU"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang mencetak surat suara?", options: ["KPU", "Bawaslu", "Kemendagri", "DPR"], answer: 0, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa syarat minimal dukungan untuk calon perseorangan presiden?", options: ["5% suara nasional", "10 juta suara", "10% kursi DPR", "25% suara sah nasional"], answer: 3, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa arti asas pemilu 'langsung'?", options: ["Dilakukan oleh pemerintah", "Tanpa perwakilan", "Pemilih memberikan suara secara langsung", "Hanya petugas yang memilih"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang menetapkan daerah pemilihan (dapil)?", options: ["Presiden", "DPR", "KPU", "Bawaslu"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa yang dilakukan pemilih di bilik suara?", options: ["Menghitung suara", "Mencoblos surat suara", "Menyerahkan KTP", "Melihat hasil sementara"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang bisa mengajukan gugatan hasil pemilu presiden?", options: ["Rakyat", "Partai politik manapun", "Pasangan calon peserta pemilu", "Bawaslu"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa arti pemilu yang 'adil'?", options: ["Semua calon menang", "Tidak ada penghitungan suara", "Setiap peserta mendapat perlakuan setara", "Hanya partai besar yang menang"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa tujuan daftar pemilih tetap (DPT)?", options: ["Menentukan hasil pemilu", "Mencegah pemilih ganda", "Menambah suara partai", "Mempercepat penghitungan suara"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa yang dimaksud kampanye negatif?", options: ["Kampanye menggunakan kekerasan", "Kampanye dengan kritik terhadap lawan berdasarkan fakta", "Kampanye gelap", "Kampanye tanpa izin"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa sanksi bagi pemilih yang mencoblos dua kali?", options: ["Tidak ada", "Teguran", "Pidana", "Pemilu diulang"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa yang dimaksud dengan pemilu presiden dua putaran?", options: ["Dua kali penghitungan", "Pemungutan suara ulang di daerah tertentu", "Pemilu diulang jika tidak ada yang mendapat suara mayoritas", "Pemilu dilaksanakan dua hari"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang dapat menjadi calon legislatif?", options: ["Siapa saja tanpa syarat", "Warga negara Indonesia yang memenuhi persyaratan", "Pegawai negeri aktif", "Anak di bawah umur"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Berapa persen ambang batas parlemen (parliamentary threshold)?", options: ["2%", "4%", "5%", "10%"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa arti 'pemilu luber dan jurdil'?", options: ["Langsung, bebas, rahasia, jujur, dan adil", "Lugas dan bersih", "Luang dan terbuka", "Lubang besar untuk mencoblos"], answer: 0, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang menjadi pengawas di TPS?", options: ["Ketua RT", "Panwas TPS", "Ketua KPU", "Saksi partai"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa tugas utama KPPS?", options: ["Mengatur kampanye", "Mengelola dana partai", "Melaksanakan pemungutan dan penghitungan suara di TPS", "Menetapkan dapil"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa bentuk kampanye yang dilarang?", options: ["Debat publik", "Pemberian uang atau barang kepada pemilih", "Penyampaian visi misi", "Pemasangan baliho"], answer: 1, explanation: "[Penjelasan belum tersedia]"},
+{question: "Siapa yang dapat menyampaikan visi dan misi dalam kampanye?", options: ["Media", "Pendukung", "Calon dan/atau tim kampanye", "Petugas TPS"], answer: 2, explanation: "[Penjelasan belum tersedia]"},
+{question: "Apa syarat hak memilih dalam pemilu?", options: ["Berumur 17 tahun atau sudah menikah", "Lulusan SMA", "Anggota partai", "Mempunyai NPWP"], answer: 0, explanation: "[Penjelasan belum tersedia]"},
+
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timerInterval;
+        let timeLeft = 30 * 60; // 30 minutes
+        let userAnswers = [];
+
+        function startQuiz() {
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'inline-block';
+            document.getElementById('prev-btn').style.display = 'inline-block';
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('result').innerHTML = '';
+            score = 0;
+            currentQuestion = 0;
+            timeLeft = 30 * 60;
+            userAnswers = [];
+            showQuestion(currentQuestion);
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.innerText = `Sisa waktu: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (--timeLeft < 0) {
+                    clearInterval(timerInterval);
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        
+
+function showQuestion(index) {
+    if (index === quizData.length - 1) {
+        document.getElementById('next-btn').style.display = 'none';
+    } else {
+        document.getElementById('next-btn').style.display = 'inline-block';
+    }
+
+    updateSubmitButton();
+
+            const container = document.getElementById('quiz-container');
+            const q = quizData[index];
+            const savedAnswer = userAnswers[index];
+            container.innerHTML = `
+                <div class="question-container">
+                    <div class="question">Soal ${index + 1}: ${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, i) => 
+                            `<label><input type="radio" name="option" value="${i}" ${savedAnswer === i ? 'checked' : ''} onchange="saveAnswer(${i})"> ${opt}</label>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveAnswer(value) {
+            userAnswers[currentQuestion] = value;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            } else {
+                endQuiz();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        
+
+function endQuiz() {
+    if (!confirm("Apakah Anda yakin ingin mengirim jawaban? Jawaban yang belum diisi akan dihitung kosong.")) {
+        return;
+    }
+
+    document.getElementById('submit-btn').style.display = 'none';
+
+            clearInterval(timerInterval);
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('prev-btn').style.display = 'none';
+            document.getElementById('start-btn').innerText = 'Ulangi Kuis';
+            document.getElementById('start-btn').style.display = 'inline-block';
+
+            score = 0;
+            quizData.forEach((q, i) => {
+                if (userAnswers[i] === q.answer) score += 2;
+            });
+
+            let resultHTML = `<h2>Kuis selesai! Skor Anda: ${score} dari ${quizData.length * 2}</h2>`;
+            resultHTML += "<ol>";
+            quizData.forEach((q, i) => {
+                const isCorrect = userAnswers[i] === q.answer;
+                const userAnswerText = q.options[userAnswers[i]] || "Tidak dijawab";
+                const correctAnswerText = q.options[q.answer];
+                resultHTML += `<li>
+                    <strong>${q.question}</strong><br>
+                    <span style="color: #2196F3; font-weight: bold;">Jawaban Anda:</span> ${userAnswerText}<br>
+                    <span style="color: #4CAF50; font-weight: bold;">Jawaban Benar:</span> ${correctAnswerText}<br>
+                    <span style="color: ${isCorrect ? 'green' : 'red'}">${isCorrect ? 'Benar' : 'Salah'}</span>
+                </li><br>`;
+            });
+            resultHTML += "</ol>";
+            document.getElementById('result').innerHTML = resultHTML;
+        }
+
+        // Initial UI setup
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('prev-btn').style.display = 'none';
+    
+function updateSubmitButton() {
+    const submitBtn = document.getElementById('submit-btn');
+    if (currentQuestion === quizData.length - 1) {
+        submitBtn.style.display = 'inline-block';
+    } else {
+        submitBtn.style.display = 'none';
+    }
+}
+</script>
+
+<div id="status-page" style="display:none; padding: 20px;">
+    <h2>Status Jawaban per Soal</h2>
+    <div id="question-status-summary" style="display:flex; flex-wrap: wrap; gap: 8px;"></div>
+    <button onclick="backToResult()">Kembali ke Hasil</button>
+</div>
+
+
+<script>
+function backToResult() {
+    document.getElementById("status-page").style.display = "none";
+    document.getElementById("quiz-container").style.display = "block";
+}
+</script>
+
+</body>
+</html>
