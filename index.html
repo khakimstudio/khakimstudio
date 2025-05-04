@@ -1,319 +1,223 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kuis Kepemiluan - 100 Soal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Kasir Profesional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f9f9f9;
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6f8;
       color: #333;
     }
-    header {
-      background: maroon;
-      color: white;
-      padding: 1em;
-      text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .timer {
-      font-size: 1.2em;
-    }
     .container {
-      max-width: 800px;
+      max-width: 700px;
       margin: auto;
-      padding: 1em;
+      padding: 30px 20px;
     }
-    .question-card {
-      background: white;
-      padding: 1.5em;
-      margin: 1em 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
+    h1 {
+      text-align: center;
+      color: #2c3e50;
     }
-    .options label {
-      display: block;
-      padding: 0.5em;
-      border-radius: 6px;
-      margin: 0.3em 0;
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 12px;
       border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    ul.autocomplete {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 180px;
+      overflow-y: auto;
+      position: absolute;
+      width: 100%;
+      z-index: 10;
+    }
+    ul.autocomplete li {
+      padding: 10px;
       cursor: pointer;
     }
-    .options input {
-      margin-right: 10px;
+    ul.autocomplete li:hover {
+      background-color: #f1f1f1;
     }
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 1em;
+    .info-box, .rekap-box {
+      padding: 12px;
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
+      border-radius: 6px;
+      margin-bottom: 20px;
     }
     button {
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 1.5em;
-      color: white;
-      background: maroon;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    button.green {
-      background: green;
-      border-radius: 8px;
-      width: auto;
-      padding: 0.5em 1.5em;
-      font-size: 1em;
-      margin-top: 1em;
-    }
-    #startBtn {
-      padding: 1em 4em;
-      background: orange;
+      padding: 12px 20px;
+      background: #007bff;
       color: white;
       border: none;
-      font-size: 1.2em;
-      border-radius: 8px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
-      margin: auto;;
-
-
+      margin-right: 10px;
     }
-    #result {
-      padding: 1em;
-      background: white;
-      margin: 2em 0;
-      border-radius: 10px;
+    button:hover {
+      background: #0056b3;
+    }
+    .total-box {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #2e7d32;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>LATIHAN SOAL PPPK TEKNIS KPU</h1>
-    <div class="timer" id="timer">60:00</div>
-  </header>
-  <div class="container">
-    <button id="startBtn" onclick="startQuiz()">Mulai</button>
-    <div id="quizContainer" style="display:none;"></div>
-    <div id="result" style="display:none;"></div>
+<div class="container">
+  <h1>Kasir Toko</h1>
+
+  <div class="form-group">
+    <label for="namaBarang">Cari Nama Barang</label>
+    <input type="text" id="namaBarang" placeholder="Ketik nama barang..." onkeyup="cariBarang()" autocomplete="off">
+    <ul id="listDropdown" class="autocomplete"></ul>
   </div>
-  <script>
-const questions = [
-  { "soal": "1. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "2. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "3. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "4. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "5. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "6. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "7. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "8. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "9. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "10. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "11. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "12. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "13. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "14. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "15. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "16. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "17. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "18. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "19. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "20. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "21. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "22. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "23. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "24. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "25. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "26. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "27. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "28. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "29. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "30. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "31. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "32. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "33. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "34. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "35. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "36. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "37. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "38. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "39. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "40. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "41. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "42. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "43. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "44. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "45. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "46. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "47. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "48. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "49. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "50. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "51. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "52. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "53. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "54. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "55. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "56. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "57. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "58. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "59. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "60. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "61. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "62. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "63. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "64. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "65. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "66. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "67. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "68. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "69. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "70. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "71. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "72. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "73. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "74. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "75. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "76. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "77. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "78. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "79. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "80. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "81. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "82. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "83. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "84. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "85. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "86. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "87. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "88. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "89. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "90. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "91. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "92. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "93. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "94. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "95. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "96. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "97. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "98. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-  { "soal": "99. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
-  { "soal": "100. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
-];
 
-let currentQuestion = 0;
-let score = 0;
-let userAnswers = [];
+  <div class="form-group">
+    <label for="jumlah">Jumlah Pembelian</label>
+    <input type="number" id="jumlah" placeholder="Masukkan jumlah" min="1">
+  </div>
 
-let timerInterval;
-let totalSeconds = 60 * 60;
+  <div class="info-box" id="infoBarang" style="display: none;"></div>
 
-function startQuiz() {
-  document.getElementById("startBtn").style.display = "none";
-  document.getElementById("quizContainer").style.display = "block";
-  renderQuestion();
-  startTimer();
-}
+  <button onclick="tambahRekap()">Tambah ke Rekap</button>
+  <button onclick="unduhExcel()">Download Rekap Excel</button>
+  <button onclick="cetakStruk()">Cetak Struk</button>
 
-function startTimer() {
-  timerInterval = setInterval(() => {
-    totalSeconds--;
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    document.getElementById("timer").innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    if (totalSeconds <= 0) {
-      clearInterval(timerInterval);
-      showResult();
-    }
-  }, 1000);
-}
+  <div class="rekap-box" id="rekapTransaksi" style="display: none;"></div>
+  <div class="total-box" id="totalHarga" style="display: none;"></div>
+</div>
 
-function renderQuestion() {
-  const q = questions[currentQuestion];
-  let html = `<div class='question-card'><h3>Soal ${currentQuestion + 1}</h3><p>${q.soal}</p><div class='options'>`;
-  ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
-    if (q.pilihan[opt]) {
-      html += `<label><input type='radio' name='option' value='${opt}'> ${opt}. ${q.pilihan[opt]}</label>`;
-    }
-  });
-  html += `</div>`;
+<script>
+  const barangList = [
+    { kode: 'A-001', nama: 'Piring', stok: 15, harga: 5000 },
+    { kode: 'A-002', nama: 'Sendok', stok: 6, harga: 2000 },
+    { kode: 'A-003', nama: 'Gelas', stok: 46, harga: 4000 },
+    { kode: 'A-004', nama: 'Garpu', stok: 20, harga: 2500 },
+    { kode: 'A-005', nama: 'Mangkok', stok: 15, harga: 3500 },
+    { kode: 'A-006', nama: 'Panci', stok: 16, harga: 50000 },
+    { kode: 'A-007', nama: 'Pot', stok: 25, harga: 60000 },
+    { kode: 'A-008', nama: 'Rice Cooker', stok: 50, harga: 300000 },
+    { kode: 'A-009', nama: 'Pisau Dapur', stok: 14, harga: 15000 },
+    { kode: 'A-010', nama: 'Mie Instan', stok: 16, harga: 3000 }
+  ];
 
-  html += "<div class='nav-buttons'>";
-  if (currentQuestion > 0) {
-    html += "<button onclick='prevQuestion()'>&larr;</button>";
-  } else {
-    html += "<span></span>";
-  }
-  if (currentQuestion < questions.length - 1) {
-    html += "<button onclick='nextQuestion()'>&rarr;</button>";
-  } else {
-    html += "<button class='green' onclick='showResult()'>Kirim Jawaban</button>";
-  }
-  html += "</div></div>";
-  document.getElementById("quizContainer").innerHTML = html;
+  let selectedBarang = null;
+  const rekapList = [];
 
-  const savedAnswer = userAnswers[currentQuestion];
-  if (savedAnswer) {
-    document.querySelectorAll('input[name=option]').forEach(radio => {
-      if (radio.value === savedAnswer) radio.checked = true;
+  function cariBarang() {
+    const input = document.getElementById("namaBarang");
+    const filter = input.value.toLowerCase();
+    const dropdown = document.getElementById("listDropdown");
+    const infoBox = document.getElementById("infoBarang");
+    dropdown.innerHTML = "";
+    infoBox.style.display = "none";
+    selectedBarang = null;
+
+    if (!filter) return;
+
+    const hasil = barangList.filter(barang =>
+      barang.nama.toLowerCase().includes(filter)
+    );
+
+    hasil.forEach(barang => {
+      const li = document.createElement("li");
+      li.textContent = barang.nama;
+      li.onclick = () => pilihBarang(barang);
+      dropdown.appendChild(li);
     });
   }
 
-  document.querySelectorAll('input[name=option]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      userAnswers[currentQuestion] = radio.value;
+  function pilihBarang(barang) {
+    document.getElementById("namaBarang").value = barang.nama;
+    document.getElementById("listDropdown").innerHTML = "";
+    const info = `
+      <strong>Kode:</strong> ${barang.kode}<br>
+      <strong>Nama:</strong> ${barang.nama}<br>
+      <strong>Stok:</strong> ${barang.stok}<br>
+      <strong>Harga:</strong> Rp ${barang.harga.toLocaleString()}
+    `;
+    const infoBox = document.getElementById("infoBarang");
+    infoBox.innerHTML = info;
+    infoBox.style.display = "block";
+    selectedBarang = barang;
+  }
+
+  function tambahRekap() {
+    const jumlah = parseInt(document.getElementById("jumlah").value);
+    if (!selectedBarang || isNaN(jumlah) || jumlah <= 0) {
+      alert("Pilih barang dan masukkan jumlah yang valid.");
+      return;
+    }
+
+    rekapList.push({ ...selectedBarang, jumlah });
+    tampilkanRekap();
+
+    document.getElementById("namaBarang").value = "";
+    document.getElementById("jumlah").value = "";
+    document.getElementById("infoBarang").style.display = "none";
+    selectedBarang = null;
+  }
+
+  function tampilkanRekap() {
+    const box = document.getElementById("rekapTransaksi");
+    const totalBox = document.getElementById("totalHarga");
+    let total = 0;
+    box.innerHTML = '<h3>Rekap Transaksi</h3>' + rekapList.map(item => {
+      const subtotal = item.harga * item.jumlah;
+      total += subtotal;
+      return `<div><strong>${item.nama}</strong> (${item.kode}) - ${item.jumlah} pcs x Rp ${item.harga.toLocaleString()} = Rp ${subtotal.toLocaleString()}</div>`;
+    }).join("");
+    box.style.display = "block";
+    totalBox.innerHTML = `Total Harga: Rp ${total.toLocaleString()}`;
+    totalBox.style.display = "block";
+  }
+
+  function unduhExcel() {
+    let csvContent = "data:text/csv;charset=utf-8,Kode,Nama Barang,Jumlah,Harga Satuan,Subtotal\n";
+    rekapList.forEach(item => {
+      const subtotal = item.harga * item.jumlah;
+      csvContent += `${item.kode},${item.nama},${item.jumlah},${item.harga},${subtotal}\n`;
     });
-  });
-}
 
-function nextQuestion() {
-  if (currentQuestion < questions.length - 1) {
-    currentQuestion++;
-    renderQuestion();
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "rekap_transaksi.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
-}
 
-function prevQuestion() {
-  if (currentQuestion > 0) {
-    currentQuestion--;
-    renderQuestion();
+  function cetakStruk() {
+    let struk = "=== STRUK PEMBELIAN ===\n";
+    let total = 0;
+    rekapList.forEach(item => {
+      const subtotal = item.harga * item.jumlah;
+      total += subtotal;
+      struk += `${item.nama} (${item.jumlah} x Rp ${item.harga.toLocaleString()}) = Rp ${subtotal.toLocaleString()}\n`;
+    });
+    struk += `\nTOTAL: Rp ${total.toLocaleString()}\n\nTerima kasih!`;
+    alert(struk);
   }
-}
-
-function showResult() {
-  clearInterval(timerInterval);
-  let resultHTML = `<h2>Hasil Kuis</h2>`;
-  score = 0;
-
-  questions.forEach((q, i) => {
-    const userAns = userAnswers[i] || '-';
-    const correct = q.jawaban;
-    const isCorrect = userAns === correct;
-    if (isCorrect) score++;
-
-    resultHTML += `<div class='question-card'>
-      <h3>Soal ${i + 1}</h3>
-      <p>${q.soal}</p>
-      <p><strong>Jawaban Anda:</strong> ${userAns}</p>
-      <p><strong>Jawaban Benar:</strong> ${correct}</p>
-      <p><strong>Status:</strong> ${isCorrect ? "<span style='color:green'>Benar</span>" : "<span style='color:red'>Salah</span>"}</p>
-      <p><strong>Pembahasan:</strong> ${q.pembahasan}</p>
-    </div>`;
-  });
-
-  resultHTML = `<div class='question-card'><h2>Skor Anda: ${score} dari ${questions.length}</h2></div>` + resultHTML;
-  document.getElementById("quizContainer").style.display = "none";
-  document.getElementById("result").innerHTML = resultHTML;
-  document.getElementById("result").style.display = "block";
-}
-  </script>
+</script>
 </body>
 </html>
