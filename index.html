@@ -3,221 +3,1274 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aplikasi Kasir Profesional</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Kuis Kepemiluan</title>
   <style>
     body {
+      font-family: sans-serif;
       margin: 0;
-      font-family: 'Inter', sans-serif;
-      background-color: #f4f6f8;
-      color: #333;
+      background-color: #800000;
+      color: white;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background-color: #660000;
+      font-size: 1.25rem;
     }
     .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 30px 20px;
+      padding: 1rem;
     }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-    }
-    .form-group {
-      margin-bottom: 20px;
-      position: relative;
-    }
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    ul.autocomplete {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
+    .question-box {
       background: white;
-      border: 1px solid #ccc;
-      border-top: none;
-      max-height: 180px;
-      overflow-y: auto;
-      position: absolute;
-      width: 100%;
-      z-index: 10;
+      color: black;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
     }
-    ul.autocomplete li {
-      padding: 10px;
-      cursor: pointer;
+    .options label {
+      display: block;
+      margin: 0.5rem 0;
     }
-    ul.autocomplete li:hover {
-      background-color: #f1f1f1;
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
     }
-    .info-box, .rekap-box {
-      padding: 12px;
-      background: #e3f2fd;
-      border: 1px solid #90caf9;
-      border-radius: 6px;
-      margin-bottom: 20px;
-    }
-    button {
-      padding: 12px 20px;
-      background: #007bff;
-      color: white;
+    .btn {
       border: none;
-      border-radius: 6px;
-      font-size: 16px;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
       cursor: pointer;
-      margin-right: 10px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    button:hover {
-      background: #0056b3;
+    .btn-prev, .btn-next {
+      background-color: #cc0000;
+      color: white;
     }
-    .total-box {
-      margin-top: 20px;
+    .btn-submit {
+      background-color: #4CAF50;
+      color: white;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .btn-start {
+      background-color: white;
+      color: #800000;
       font-weight: bold;
-      font-size: 18px;
-      color: #2e7d32;
+    }
+    .hidden {
+      display: none;
+    }
+    .results {
+      background-color: white;
+      color: black;
+      padding: 1rem;
+      border-radius: 1rem;
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Kasir Toko</h1>
+  <header>
+    <div>Kuis Kepemiluan</div>
+    <div id="timer">60:00</div>
+  </header>
 
-  <div class="form-group">
-    <label for="namaBarang">Cari Nama Barang</label>
-    <input type="text" id="namaBarang" placeholder="Ketik nama barang..." onkeyup="cariBarang()" autocomplete="off">
-    <ul id="listDropdown" class="autocomplete"></ul>
+  <div class="container">
+    <div id="start-screen">
+      <button class="btn btn-start" onclick="startQuiz()">Mulai Kuis</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+      <div id="question-container"></div>
+    </div>
+
+    <div id="result-screen" class="hidden"></div>
   </div>
 
-  <div class="form-group">
-    <label for="jumlah">Jumlah Pembelian</label>
-    <input type="number" id="jumlah" placeholder="Masukkan jumlah" min="1">
-  </div>
-
-  <div class="info-box" id="infoBarang" style="display: none;"></div>
-
-  <button onclick="tambahRekap()">Tambah ke Rekap</button>
-  <button onclick="unduhExcel()">Download Rekap Excel</button>
-  <button onclick="cetakStruk()">Cetak Struk</button>
-
-  <div class="rekap-box" id="rekapTransaksi" style="display: none;"></div>
-  <div class="total-box" id="totalHarga" style="display: none;"></div>
-</div>
-
-<script>
-  const barangList = [
-    { kode: 'A-001', nama: 'Piring', stok: 15, harga: 5000 },
-    { kode: 'A-002', nama: 'Sendok', stok: 6, harga: 2000 },
-    { kode: 'A-003', nama: 'Gelas', stok: 46, harga: 4000 },
-    { kode: 'A-004', nama: 'Garpu', stok: 20, harga: 2500 },
-    { kode: 'A-005', nama: 'Mangkok', stok: 15, harga: 3500 },
-    { kode: 'A-006', nama: 'Panci', stok: 16, harga: 50000 },
-    { kode: 'A-007', nama: 'Pot', stok: 25, harga: 60000 },
-    { kode: 'A-008', nama: 'Rice Cooker', stok: 50, harga: 300000 },
-    { kode: 'A-009', nama: 'Pisau Dapur', stok: 14, harga: 15000 },
-    { kode: 'A-010', nama: 'Mie Instan', stok: 16, harga: 3000 }
-  ];
-
-  let selectedBarang = null;
-  const rekapList = [];
-
-  function cariBarang() {
-    const input = document.getElementById("namaBarang");
-    const filter = input.value.toLowerCase();
-    const dropdown = document.getElementById("listDropdown");
-    const infoBox = document.getElementById("infoBarang");
-    dropdown.innerHTML = "";
-    infoBox.style.display = "none";
-    selectedBarang = null;
-
-    if (!filter) return;
-
-    const hasil = barangList.filter(barang =>
-      barang.nama.toLowerCase().includes(filter)
-    );
-
-    hasil.forEach(barang => {
-      const li = document.createElement("li");
-      li.textContent = barang.nama;
-      li.onclick = () => pilihBarang(barang);
-      dropdown.appendChild(li);
-    });
+  <script>
+   const questions = [
+  {
+    "q": "Ruang lingkup, tugas, tanggung jawab dan wewenang Jabatan Fungsional Penata Kelola Pemilihan Umum (Pemilu) asalah sebagai\nberikut, kecuali...",
+    "options": [
+      "A. Pengelolaan perencana pemilu",
+      "B. Pengelolaan tahapan kepemiluan",
+      "C. Pengelolaan pelanggaran pemilu",
+      "D. Pengelolaan terhadap sangketa pemilu",
+      "E. Pengelolaan terhadap logistik pemilu"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Sebagai calon anggota DPR dari partai brownis, Bayu mengajukan keberatan kepada Bawaslu terhadap keputusan yang\ndikeluarkan oleh KPU mengenai hasil pemeriksaan administrasi calon anggota DPR, DPD dan DPRD. Pemeristiwa tersebut dalam\nkategori...",
+    "options": [
+      "A. Tindakan Pidana Pemilu",
+      "B. Perselisihan Hasil Pemilu",
+      "C. Sangketa Proses Pemilu",
+      "D. Pelanggaran Administratif Pemilu",
+      "E. Pelanggaran Kode Etik Penyelenggara Pemilu"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang bukan merupakan tempat kedudukan Penata Kelola Pemilu sebagai pelaksana teknis pengelolaan Pemilu\nadalah...",
+    "options": [
+      "A. Secretariat Jendral KPU",
+      "B. Komisi Indenpenden Pemilihan (KIP) Aceh",
+      "C. Sekretariat KPU Kabupaten",
+      "D. Sekretariat KIP Kota",
+      "E. Sekretariat PKK"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Setelah Data Penduduk Potensial Pemilih Pemilu (DP4) diterima di Kementrian data pemilihan KPU Kabupaten/Kota harus\ndiselesaikan...",
+    "options": [
+      "A. Paling lama 2 bulan seletah diterima",
+      "B. Paling lama 3 bulan seletah diterima",
+      "C. Paling lama 4 bulan seletah diterima",
+      "D. Paling lama 5 bulan seletah diterima",
+      "E. Paling lama 6 bulan seletah diterima"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Jejang Jabatan Fungsional tertinggi pada Penata kelola Pemilu adalah...",
+    "options": [
+      "A. Pembina Penata Kelola Pemilu",
+      "B. Penata Kelola Pemilu Ahli Pertama",
+      "C. Penata Kelola Pemilu Ahli Utama",
+      "D. Penata Kelola Pemili AHli Muda",
+      "E. Penata Kelola Pemilu Ahli"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Unsur kegiatan tugas Jabatan Fungsional Penata Kelola Pemilu terdiri atas unsur Utama dan Unsur Penunjang. Berikut yang\nmerupakan Unsur Penunjang adalah...",
+    "options": [
+      "A. Pembuatan karya tulis/karya ilmiah di bidang kepemiluan",
+      "B. Peran serta dalam seminar /lokakarya dibidang kepemiluan",
+      "C. Monitoring, evaluasi dan pelaporan pelaksanaan pemilu",
+      "D. Pendidikan dan pelatihan (diklat) fungsional/teknis dibidang Pemilu serta memperoleh Surat Tanda Tamat Pendidikan\ndan pelatihan atau sertfikat",
+      "E. Melakukan riset di bidang kepemiluan"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Tata kerja tim penilai dan tata cara penilaian angka kredit jabatan fungsional penata kelola pemilu ditetapkan oleh Pimpinan\ninstansi Pembina jabatan fungsional penata kelola pemilu yaitu...",
+    "options": [
+      "A. Menteri Pendayagunaan Aparatur Negara dan Reformasi Birokrasi",
+      "B. Kepala Badan Kesatuan Bangsa dan Politik (Kesbangpol)",
+      "C. Kepala badan kepegawaian negara",
+      "D. Sekretaris Jendral Komisi Pemilihan Umum",
+      "E. Sekretaris Jendral Badan Pengawas Pemilihan Umum"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Salah satu tugas Jabatan Fungsional Penata Kelola Pelmilu Ahli Pertama adalah...",
+    "options": [
+      "A. Mengumpulkan Bahan dan data jadwal pelaksanaan pemilu",
+      "B. Menyusun jadwal penyelenggara Pemilu",
+      "C. Menyusun tata kerja pelaksanaan Pemilu",
+      "D. Menyiapkan pedoman teknis pelaksanaan Pemilu",
+      "E. Melakukan kajian terhadap laporan hasil pelaksanaan Pemilu"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Penetapan partai politik calon peserta pemilu yang memenuhin syarat atau lulus verifikasi harus dilakukan KPU dengan tenggat\nwaktu paling lambat...",
+    "options": [
+      "A. 10 bulan sebelum hari pemungutan suara",
+      "B. 11 bulan sebelum hari pemungutan suara",
+      "C. 12 bulan sebelum hari pemungutan suara",
+      "D. 13 bulan sebelum hari pemungutan suara",
+      "E. 14 bulan sebelum hari pemungutan suara"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang bukan merupakan Hasil Kerja tugas jabatan bagi Penata Kelola Pemilu Ahli Pertama adalah...",
+    "options": [
+      "A. Laporan bahan riset Pemilu",
+      "B. Laporan bahan riset resiko distribusi pemilu",
+      "C. Peta resiko distribusi logistik",
+      "D. Dokumen peta resiko pelaksanaan Pemilu ditingkat satker",
+      "E. Dokumen bahan verifikasi peserta pemilu (parpol)"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Sesuai UU No. 7 tahun 2017, jadwal pendaftaran partai politik peserta pemilu ditetapkan oleh KPU paling lambat...",
+    "options": [
+      "A. 20 bulan sebelum hari pemungutan suara",
+      "B. 19 bulan sebelum hari pemungutan suara",
+      "C. 18 bulan sebelum hari pemungutan suara",
+      "D. 17 bulan sebelum hari pemungutan suara",
+      "E. 16 bulan sebelum hari pemungutan suara"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Batas waktu pelaksanaan Pemungutan suara ulang di TPS menurut UU No. 7 tahun 2017 adalah...",
+    "options": [
+      "A. Paling lambat 10 hari setelah hari pemungutan suara",
+      "B. Paling lambat 14 hari setelah hari pemungutan suara",
+      "C. Paling lambat 15 hari setelah hari pemungutan suara",
+      "D. Paling cepat 10 hari setelah hari pemungutan suara",
+      "E. Paling lambat 10 hari sebelum hari pemungutan suara"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Pasal 391 UU No. 7 tahun 2017 tentang pemilu menyebutkan bahwa PPS wajib mengumumkan salinan sertifikat hasil\nperhitungan suara dan seluruh TPS di wilayah kerjanya dengan cara...",
+    "options": [
+      "A. Menempel salinan tersebut ditempat umum",
+      "B. Mengumumkan hasil tersebut dimasjid masjid melalui pengeras suara",
+      "C. Menyampaikan selinan tersebut kepada PTPS",
+      "D. Menyampaikan salinan terebut kepada saksi parpol",
+      "E. Menempel salinan tersebut di ruang kerja Kepala Desa"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Pantarlih adalah petugas yang bertugas untuk melaksanakan pemutakhiran data pemilih yang dibentuk oleh...",
+    "options": [
+      "A. KPU",
+      "B. PPK",
+      "C. PPS",
+      "D. KPPS",
+      "E. PTPS"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Dalam menyelenggarakan pemilu, penyelenggara pemilu harus melaksanakan Pemilu berdasarkan pada asas dan\npenyelenggaraannya harus memenuhi prinsip...",
+    "options": [
+      "A. Mandiri",
+      "B. Jujur",
+      "C. Adil",
+      "D. Berkepastian hukum",
+      "E. Semua benar"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Ketentuan lebih lanjut mengenai uraian tugas dan tata kerja PPK, PPS, PPLN, KPPS, dan KPPSLN diatur dalam...",
+    "options": [
+      "A. Peraturan Pemerintah",
+      "B. Keputusan Presiden",
+      "C. Peraturan KPU",
+      "D. Peraturan Bawaslu",
+      "E. TAP MPR"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Lembaga penyelenggara pemilu yang mengawasi Penyelenggaraan Pemilu di seluruh wilayah Negara Kesatuan Republik\nIndonesia disebut...",
+    "options": [
+      "A. PPK",
+      "B. Bawaslu",
+      "C. Penyelenggara Pemilu",
+      "D. PPS",
+      "E. KPPS"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Presiden mengajukan...nama calon anggota KPU kepada DPR paling lambat...hari terhitung sejak diterimanya berkas calon\nanggota KPU. Yang tepat untuk melengkapi pernyataan tersebut berturut-turut adalah...",
+    "options": [
+      "A. 12 dan 14",
+      "B. 12 dan 15",
+      "C. 14 dan 14",
+      "D. 12 dan 12",
+      "E. 15 dan 15"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Lembaga yang bertugas menangani penyelenggaran kode etik Penyelenggara Pemilu disebut...",
+    "options": [
+      "A. PPK",
+      "B. Bawaslu",
+      "C. DKPP",
+      "D. PPS",
+      "E. KPPS"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Landasan Hukum Pemilihan Umum Serentak tahun 2024 adalah...",
+    "options": [
+      "A. UU No. 10 Tahun 2016",
+      "B. UU No. 7 Tahun 2017",
+      "C. UU No. 42 Tahun 2008",
+      "D. UU No. 5 Tahun 2011",
+      "E. UU No. 8 Tahun 2012"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Yang bukan merupakan dasar hukum pembentukan UU No. 7 Tahun 2017 adalah...",
+    "options": [
+      "A. Pasal 1 ayat 2 UUD 1945",
+      "B. Pasal 22c ayat 1 UUD 1945",
+      "C. Pasal 6 UUD 1945",
+      "D. Pasal 22e UUD 1945",
+      "E. Pasal 23e UUD 1945"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang bukan merupakan penyelenggara pemilu adalah...",
+    "options": [
+      "A. KPU",
+      "B. Bawaslu",
+      "C. DKPP",
+      "D. Kepolisian",
+      "E. KPPS"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Hak-hak penyandang disabilitas dalam kepemiluan secara khusus dilindungi dalam UU No. 7 Tahun 2017 yaitu pada pasal...",
+    "options": [
+      "A. Pasal 3",
+      "B. Pasal 4",
+      "C. Pasal 5",
+      "D. Pasal 6",
+      "E. Pasal 7"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Melakukan Penyelidikan dan Verifikasi, serta pemeriksaan atas aduan dan / atau laporan dugaan adanya pelanggaran kode etik\nyang dilakukan oleh penyelenggara pemilu meupakan tugas dari...",
+    "options": [
+      "A. Bawaslu",
+      "B. KPU",
+      "C. Kepolisian",
+      "D. Kejaksaan",
+      "E. DKKP"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang merupakan pernyataan yang salah tentang peserta pemilu adalah...",
+    "options": [
+      "A. Perseorangan untuk pemilu presiden dan wakil presiden",
+      "B. Partai politik untuk Pemiilu DPR",
+      "C. Partai politik untuk Pemilu DPRD Provinsi",
+      "D. Partai politik untuk Pemilu DPRD Kab/Kota",
+      "E. Perseorangan untuk pemilu DPRD"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang termasuk dalam jajaran Bawaslu adalah...",
+    "options": [
+      "A. PPK",
+      "B. PPS",
+      "C. PPLN",
+      "D. PTPS",
+      "E. KPPS"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang bukan merupakan jajaran Bawaslu adalah...",
+    "options": [
+      "A. Bawaslu provinsi",
+      "B. Panwaslu Desa",
+      "C. PTPS",
+      "D. Panwaslu LN",
+      "E. KPPSLN"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Dalam hal peraturan KPU diduga bertentangan dengan undang-undang pemilu, pengujiannya dilakukan oleh...",
+    "options": [
+      "A. Bawaslu",
+      "B. KPU",
+      "C. DKKP",
+      "D. Mahkama Agung",
+      "E. Mahkama Konstitusi"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Lembaga negara yang memiliki wewenang untuk memeriksa, mengendali dan memutus perkara tindak pidana pemilu adalah...",
+    "options": [
+      "A. Bawaslu",
+      "B. Pengendalian Tata Usaha Negara",
+      "C. Mahkama Agung",
+      "D. Mahkama Konstitusi",
+      "E. Pengadilan Negeri"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Dalam hal penyelesaian sengketa proses Pemilu yang dilakukan oleh Bawaslu tidak diterima, oleh para pihak, para pihak dapat\nmengajukan upaya hukum kepada...",
+    "options": [
+      "A. DKPP",
+      "B. Pengadilan Tata Usaha Negara",
+      "C. Mahkama Agung",
+      "D. Mahkama Konstitusi",
+      "E. Pengadilan Negeri"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Yang bukan pengelolaan pemilu, yaitu...",
+    "options": [
+      "A. Pengelolaan perencanaan pemilu",
+      "B. Pengelolaan tahapan pemilu",
+      "C. Pengadaan logistik Pemilu",
+      "D. Pelaksanaan Pemilu",
+      "E. Pengelolaan terhadap sengketa Pemilu"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Tugas Jabatan Fungsional Penata Kelola Pemilu, kecuali yaitu...",
+    "options": [
+      "A. Melakukan pengelolaan perencanaan Pemilu",
+      "B. Pengelolaan tahapan kepemiluan",
+      "C. Pengelolaan logistik Pemilu",
+      "D. Pelaksanaan Pemilu, monitoring evaluasi dan pelaporan",
+      "E. Pengelolaan penggugat terhadap sengketa Pemilu"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Unsur penunjang apa yang berkaitan dengan tugas jabatan fungsional penata kelola Pemilu...",
+    "options": [
+      "A. Pengajar/Pelatih pada diklat fungsional/teknis dibidang kepemiluan",
+      "B. Peran serta dalam seminar pembentukan Parpol",
+      "C. Menjadi delegasi dalam pertemuan antar parpol",
+      "D. Mengkoordinasi jadwal kampanye",
+      "E. Memperoleh penghargaan oleh Sekjend salah satu Parpol"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang merupakan tempat kedudukan penata kelola Pemilu sebagai pelaksana teknis pengelolaan pemilu adalah,\nkecuali...",
+    "options": [
+      "A. Sekretariat KPU Kabupaten",
+      "B. Sekretariat jenderal KPU",
+      "C. Komisi Independent pemilihan Aceh",
+      "D. Sekretariat Bawaslu Kabupaten",
+      "E. Sekretariat KPU kota"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Jenjang jabatan fungsional tertinggi pada penata kelola pemilu adalah...",
+    "options": [
+      "A. Penata kelola Pemilu ahli Madya",
+      "B. Penata kelola Pemilu ahli Utama",
+      "C. Penata kelola Pemilu ahli Muda",
+      "D. Penata kelola Pemilu ahli Kedua",
+      "E. Penata kelola Pemilu ahli pertama"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Setelah data penduduk potensial pemilik Pemilu dp4 diterima dari Kementerian, berapa lama pemutakhiran data pemilihan oleh\nKPU Kabupaten atau kota harus diselesaikan...",
+    "options": [
+      "A. Paling lama 1 bulan setelah diterima",
+      "B. Paling lama 2 bulan setelah diterima",
+      "C. Paling lama 3 bulan setelah diterima",
+      "D. Paling lama 4 bulan setelah diterima",
+      "E. Paling lama 5 bulan setelah diterima"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Melepas atau menyobek alat peraga Kampanye Pemilu, merusak tempat kampanye Pemilu, berbuat keonaran, mengancam\npelaksana Kampanye Pemilu adalah merupakan...",
+    "options": [
+      "A. Perselisihan hasil Pemilu",
+      "B. Sengketa proses pemilu",
+      "C. Tindakan pidana pemilu",
+      "D. Pelanggaran administrasi pemilu",
+      "E. Pelanggaran kode etik penyelenggara pemilu"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Pelanggaran terhadap etika Penyelenggara Pemilu yang berdasarkan sumpah dan/atau janji sebelum menjalankan tugas sebagai\nPenyelenggara Pemilu adalah merupakan...",
+    "options": [
+      "A. Perselisihan hasil Pemilu",
+      "B. Sengketa proses pemilu",
+      "C. Tindakan pidana Pemilu",
+      "D. Pelanggaran administrasi Pemilu",
+      "E. Pelanggaran kode etik penyelenggara pemilu"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Pak Adul adalah calon anggota DPR dari partai A, dia mengajukan keberatan kepada Bawaslu terhadap keputusan yang\ndikeluarkan oleh KPU mengenai hasil pemeriksaan administrasi calon anggota DPR DPD dan DRPD peristiwa tersebut termasuk\ndalam kategori...",
+    "options": [
+      "A. Perselisihan hasil Pemilu",
+      "B. Sengketa proses pemilu",
+      "C. Tindakan pidana Pemilu",
+      "D. Pelanggaran administrasi Pemilu",
+      "E. Pelanggaran kode etik penyelenggara pemilu"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Pengembangan profesi bagi Jabatan Fungsional Penata Kelola Pemilu meliputi, kecuali...",
+    "options": [
+      "A. Melakukan kajian di bidang kepemiluan",
+      "B. Pembuatan karya tulis/karya ilmiah di bidang kepemiluan",
+      "C. Penerjemahan/penyaduran buku, karya ilmiah, dan/atau peraturan di bidang kepemiluan",
+      "D. Melakukan riset di bidang kepemiluan",
+      "E. Melaksanakan pengembangan bidang kepengawasan"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Ruang lingkup, tugas, tanggung jawab dan wewenang Jabatan Fungsional Penata Kelola Pemilihan Umum (Pemilu) adalah sebagai\nberikut, kecuali...",
+    "options": [
+      "A. Pengelolaan perencanaan pemilu",
+      "B. Pengelolaan tahapan kepemiluan",
+      "C. Pengelolaan pelanggaran Pemilu",
+      "D. Pengelolaan terhadap sengketa Pemilu",
+      "E. Pengelolaan logistik Pemilu"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut sejumlah syarat menjadi anggota PPS, kecuali...",
+    "options": [
+      "A. Warga Negara Indonesia",
+      "B. Berusia paling rendah 22 tahun",
+      "C. Mempunyai integritas, pribadi yang kuat, jujur, dan adil",
+      "D. Berpendidikan paling rendah sekolah menengah atas atau sederajat",
+      "E. Tidak menjadi anggota partai politik"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang bukan merupakan tempat kedudukan Penata Kelola Pemilu sebagai pelaksana teknis pengelolaan Pemilu\nadalah...",
+    "options": [
+      "A. Sekretariat Jenderal KPU",
+      "B. Komisi Independen Pemilihan (KIP) Aceh",
+      "C. Sekretariat KPU Kabupaten",
+      "D. Sekretariat KIP Kota",
+      "E. Sekretariat PPK"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Dalam menyelenggarakan pemilu, penyelenggara pemilu harus melaksanakan Pemilu berdasarkan pada asas dan\npenyelenggaraannya harus memenuhi prinsip...",
+    "options": [
+      "A. Mandiri",
+      "B. Jujur",
+      "C. Adil",
+      "D. Berkepastian hukum",
+      "E. Semua benar"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Ketentuan lebih lanjut mengenai uraian tugas dan tata kerja PPK, PPS, PPLN, KPPS, dan KPPSLN diatur dalam...",
+    "options": [
+      "A. Peraturan Pemerintah",
+      "B. Keputusan Presiden",
+      "C. Peraturan KPU",
+      "D. Peraturan Bawaslu",
+      "E. TAP MPR"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Lembaga Penyelenggara pemilu yang mengawasi Penyelenggaraan Pemilu di seluruh wilayah Negara Kesaturan Republik\nIndonesia disebut...",
+    "options": [
+      "A. PPK",
+      "B. Bawaslu",
+      "C. Penyelenggara Pemilu",
+      "D. PPS",
+      "E. KPPS"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Presiden mengajukan...nama calon anggota KPU kepada DPR paling lambat...hari terhitung sejak diterimanya berkas calon\nanggota KPU. Yang tepat untuk melengkapi pernyataan tersebut berturut-turut adalah...",
+    "options": [
+      "A. 12 dan 14",
+      "B. 12 dan 15",
+      "C. 14 dan 14",
+      "D. 12 dan 12",
+      "E. 15 dan 15"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Lembaga yang bertugas menangani pelanggaran kode etik Penyelenggara Pemilu disebut...",
+    "options": [
+      "A. PPK",
+      "B. Bawaslu",
+      "C. DKPP",
+      "D. PPS",
+      "E. KPPS"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Landasan Hukum Pemilihan Umum Serentak tahun 2024 adalah...",
+    "options": [
+      "A. UU No. 10 Tahun 2016",
+      "B. UU No. 7 Tahun 2017",
+      "C. UU No. 42 Tahun 2008",
+      "D. UU No. 5 Tahun 2011",
+      "E. UU No. 8 Tahun 2012"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Yang bukan merupakan dasar hukum pembentukan UU No. 7 Tahun 2017 adalah...",
+    "options": [
+      "A. Pasal 1 ayat 2 UUD 1945",
+      "B. Pasal 22c ayat 1 UUD 1945",
+      "C. Pasal 6 UUD 1945",
+      "D. Pasal 22e UUD 1945",
+      "E. Pasal 23e UUD 1945"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang bukan merupakan penyelenggara pemilu adalah...",
+    "options": [
+      "A. KPU",
+      "B. Bawaslu",
+      "C. DKPP",
+      "D. Kepolisian",
+      "E. KPPS"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Hak-hak Penyandang disabilitas dalam kepemiluan secara khsus dilindungi dalam UU No. 7 Tahun 2017 yaitu pada pasal...",
+    "options": [
+      "A. Pasal 3",
+      "B. Pasal 4",
+      "C. Pasal 5",
+      "D. Pasal 6",
+      "E. Pasal 7"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Melakukan Penyelidikan dan verifikasi, serta pemeriksaan atas aduan dan/atau laporan dugaan adanya pelanggaran kode etik\nyang dilakukan oleh penyelenggara pemilu merupakan tugas dari...",
+    "options": [
+      "A. Bawaslu",
+      "B. KPU",
+      "C. Kepolisian",
+      "D. Kejaksaan",
+      "E. DKPP"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang merupakan pernyataan yang salah tentang peserta Pemilu adalah...",
+    "options": [
+      "A. Perseorangan untuk pemilu presiden dan wakil presiden",
+      "B. Partai Politik untuk Pemilu DPR",
+      "C. Partai Politik untuk Pemilu DPRD Provinsi",
+      "D. Partai Politik untuk Pemilu DPRD Kab/Kota",
+      "E. Perseorangan untuk Pemilu DPD"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang termasuk dalam jajaran Bawaslu adalah...",
+    "options": [
+      "A. PPK",
+      "B. PPS",
+      "C. PPLN",
+      "D. PTPS",
+      "E. KPPS"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini yang bukan merupakan jajaran Bawaslu adalah...",
+    "options": [
+      "A. Bawaslu Provinsi",
+      "B. Panwaslu Desa",
+      "C. PTPS",
+      "D. Panwaslu LN",
+      "E. KPPSLN"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Pernyataan yang benar tentang komposisi keanggotaan DKPP adalah...",
+    "options": [
+      "A. 1 orang ex officio dari unsur KPU, 2 orang ex officio dari unsur Bawaslu dan 5 orang tokoh masyarakat",
+      "B. 2 orang ex officio dari unsur KPU, 2 orang ex officio dari unsur Bawaslu dan 3 orang tokoh masyarakat",
+      "C. 1 orang ex officio dari unsur KPU, 1 orang ex officio dari unsur Bawaslu dan 5 orang tokoh masyarakat",
+      "D. 1 orang ex officio dari unsur KPU, 1 orang ex officio dari unsur Bawaslu dan 4 orang tokoh masyarakat",
+      "E. 7 orang tokoh masyarakat"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Kapan tahapan pemilu dimulai...",
+    "options": [
+      "A. 20 Bulan Sebelum hari pemungutan suara",
+      "B. 22 Bulan Sebelum hari pemungutan suara",
+      "C. 24 Bulan Sebelum hari pemungutan suara",
+      "D. 25 Bulan Sebelum hari pemungutan suara",
+      "E. 28 Bulan Sebelum hari pemungutan suara"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Partai politik peserta Pemilu harus memenuhi ambang batas perolehan suara untuk diikutkan dalam penentuan perolehan kursi\nDPR yaitu sebesar...",
+    "options": [
+      "A. 0.03",
+      "B. 0.04",
+      "C. 0.05",
+      "D. 0.06",
+      "E. 0.07000000000000001"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Presiden dapat mengusulkan anggota DKPP yang berasal dari unsur tokoh masyarakat sebanyak...",
+    "options": [
+      "A. 1 orang",
+      "B. 2 orang",
+      "C. 3 orang",
+      "D. 4 orang",
+      "E. 5 orang"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini merupakan pihak yang dilarang untuk diikutsertakan dalam kampanye, kecuali...",
+    "options": [
+      "A. Kepala Desa",
+      "B. Anggota Badan Permusyawaratan Desa",
+      "C. Perangkat Desa",
+      "D. Bupati",
+      "E. Karyawan BUMN"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Dalam melaksanakan kampanye, pelaksana, peserta dan tim kampanye Pemilu dilarang melakukan hal berikut, kecuali...",
+    "options": [
+      "A. Mengganggu Ketertiban Umum",
+      "B. Mempersoalkan Pancasila",
+      "C. Menyampaikan Visi dan Misi",
+      "D. Menjanjikan uang kepada Peserta Kampanye",
+      "E. Merusak Alat Peraga Kampanye"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Ditingkat kecamatan, penyelenggaraan, Pemilu dilaksanakan oleh...",
+    "options": [
+      "A. KPU",
+      "B. PPK",
+      "C. PPL",
+      "D. PPS",
+      "E. PTPS"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Pernyataan yang paling benar pada pelaksanaan Pemilu tahun 2024 adalah...",
+    "options": [
+      "A. PPK melalui KPU Kabupaten/Kota mengusulkan 3 (tiga) nama calon sekretaris PPK kepada Bupati/Walikota untuk\nselanjutnya dipilih dan ditetapkan 1 (satu) nama sebagai sekretaris PPK dengan keputusan Bupati/Walikota",
+      "B. PPK mengusulkan 3 (tiga) nama calon sekretaris PPK kepada KPU Kabupaten/Kota untuk selanjutnya dipilih dan\nditetapkan 1 (satu) nama sebagai sekretaris PPK dengan keputusan Ketua KPU Kabupaten/Kota",
+      "C. PPK mengusulkan 2 (dua) nama calon sekretaris PPK kepada KPU Kabupaten/Kota untuk selanjutnya dipilih dan\nditetapkan 1 (satu) nama sebagai sekretaris PPK dengan keputusan Bupati/Walikota",
+      "D. PPK melalui KPU Kabupaten/Kota mengusulkan 2 (dua) nama calon sekretaris PPK kepada Bupati/Walikota untuk\nselanjutnya dipilih dan ditetapkan 1 (satu) nama sebagai sekretaris PPK dengan keputusan Bupati/Walikota",
+      "E. PPK melalui KPU Kabupaten/Kota mengusulkan 3 (tiga) nama calon sekretaris PPK kepada Bupati/Walikota untuk\nselanjutnya dipilih dan ditetapkan 1 (satu) nama sebagai sekretaris PPK dengan keputusan KPU Kabupaten/Kota"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Berikut ini merupakan Tugas PPS, kecuali...",
+    "options": [
+      "A. Mengumumkan daftar pemilih sementara",
+      "B. Menerima masukan dari masyarakat tentang daftar pemilih sementara",
+      "C. Menerima dan menyampaikan daftar pemilih kepada KPU Kabupaten/Kota",
+      "D. Melakukan perbaikan dan mengumumkan hasil perbaikan daftar pemilih sementara",
+      "E. Mengumumkan daftar pemilih tetap dan melaporkan kepada KPU Kabupaten/Kota melalui PPK"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Untuk melaksanakan pemungutan dan perhitungan suara di TPS maka dibentuklah KPPS, pernyataan yang paling benar tentang\nKPPS adalah...",
+    "options": [
+      "A. Anggota KPPS diangkat dan diberhentikan oleh PPS atas Nama Ketua KPU Kabupaten/Kota",
+      "B. Membantu PPK dalam menyelenggarakan Pemilu, kecuali dalam hal penghitungan suara",
+      "C. Anggota KPPS diangkat dan diberhentikan oleh PPK atas Nama Ketua KPU Kabupaten/Kota",
+      "D. Menindaklanjuti dengan segera temuan dan laporan yang disampaikan oleh Panwaslu Kelurahan/Desa",
+      "E. Anggota KPPS sebanyak 9 (sembilan) orang berasal dari anggota masyarakat di sekitar TPS yang memenuhi syarat"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Penyelenggara pemilu yang memiliki wewenang untuk mengumumkan hasil penrhitungan suara di TPS adalah...",
+    "options": [
+      "A. KPU Kabupaten",
+      "B. PTPS",
+      "C. PPK",
+      "D. PPS",
+      "E. KPPS"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Di bawah ini adalah indikator Pemilu demokratis, kecuali...",
+    "options": [
+      "A. Penyusunan kerangka hukum",
+      "B. Hak memilih dan untuk dipilih",
+      "C. Kampanye Pemilu yang demokratis",
+      "D. Akses media dan kebebasan berekspresi",
+      "E. Adanya lembaga pengawas Pemilu"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Ketentuan mengenai Pemiluhan Umum dalam UUD 1945 diatur dalam Pasal...",
+    "options": [
+      "A. Pasal 20e",
+      "B. Pasal 21e",
+      "C. Pasal22e",
+      "D. Pasal 32e",
+      "E. Pasal 33e"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Jumlah surat suara yang dicetak adalah sebanyak jumlah pemilih tetap ditambah surat suara cadangan sebanyak...",
+    "options": [
+      "A. 0.01",
+      "B. 0.02",
+      "C. 2, 5%",
+      "D. 0.03",
+      "E. 3, 5%%"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Asas hukum yang menyatakan bahwa setiap orang dianggap tahu hukum atau peraturan perundang-undangan, tak terkecuali\npetani yang tak lulus sekolah dasar, atau warga yang tinggal dipedalaman adalah...",
+    "options": [
+      "A. Presumtion iures de iure",
+      "B. Presumption of etchical",
+      "C. Equality before teh law",
+      "D. Openbaar vergadering",
+      "E. Judex ne procedat ex afficio"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Putusan Bawalsu mengenai pengelesaian sangketa proses pemilu merupakan putusan yang bersifat Final dan mengikat, kecuali\nputusan terhadap sangketa proses Pemilu yang berkaitan dengan...",
+    "options": [
+      "A. Verifikasi partai politik peserta pemilu",
+      "B. Penetapan daftar calon tetap anggota DPR, DPD, DPRD provinsi, dan DPRD kabupeten / kota",
+      "C. Penetapan pasangan calon",
+      "D. Penetapan hasil pemilihan umum",
+      "E. Semua jawaban benar"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Dalam prinsip peradilan kode etik penyelenggara pemilu, sidang-sidang yang dilakukan oleh DKPP dilakukan secara terbuka,\ndapat dihadiri oleh masyarakat umum dapat diliput oleh media massa, prinsip ini dikenal dengan...",
+    "options": [
+      "A. Presumtion iures de iure",
+      "B. Presumption of etchical",
+      "C. Equality before teh law",
+      "D. Openbaar vergadering",
+      "E. Judex ne procedat ex afficio"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Sengketa pemilu adalah sengketa yang terjadi antara pesera pemilu dengan penyelenggara pemilu sebagai akibat yang\ndikeluarkannya...",
+    "options": [
+      "A. Pengumuman hasil perhitungan suara oleh KPPS",
+      "B. Peraturan Bawaslu",
+      "C. Undang-undang Pemilu",
+      "D. Peraturan KPU",
+      "E. Keputusan KPU"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Tanggal berapakah pemilu Anggota DPR dan DPRD TAHUN 1999 dilaksanakan?",
+    "options": [
+      "A. 6 Juli 1999",
+      "B. 7 Juli 1999",
+      "C. 36255",
+      "D. 36259",
+      "E. 36349"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Berapakah jumlah daerah pemilihan untuk pemilihan anggota konstituante dan anggota Dewan Perwakilan Rakyat Pemilu 1955?",
+    "options": [
+      "A. 12 daerah pemilihan",
+      "B. 14 daerah pemilihan",
+      "C. 15 daerah -pemilihan",
+      "D. 16 daerah pemilihan",
+      "E. 21 daerah pemilihan"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Berapakah jumlah Partai Politik yang menjadi peserta pada pemilu tahun 1955?",
+    "options": [
+      "A. 170 partai politik",
+      "B. 10 partai politik",
+      "C. 3 partai politik",
+      "D. 172 partai politik",
+      "E. 48 partai politik"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Syarat usia minimal bagi warga negara untuk dapat memilih dalam pemilu tahun 1955 adalah...",
+    "options": [
+      "A. 19 tahun",
+      "B. 18 tahun",
+      "C. 17 tahun",
+      "D. 16 tahun",
+      "E. 15 tahun"
+    ],
+    "answer": 1,
+    "explanation": "-"
+  },
+  {
+    "q": "Selama sejarah Penyelenggaraan pemilu di Indonesia, penyelenggaraan pemilu dengan peserta pemilu terbanyak terjadi pada\ntahun...",
+    "options": [
+      "A. 1955",
+      "B. 1971",
+      "C. 1977",
+      "D. 1999",
+      "E. 2004"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Dalam penyelenggaraan pemilu di Indonesia, pemilu pernah diselenggarakan oleh komisi Pemilihan Umum yang terdiri dari unsur\nPartai Politik Peserta Pemilu dan Unsur Pemerintah, peristiwa ini terjadi pada pemilu tahun...",
+    "options": [
+      "A. 1955",
+      "B. 1971",
+      "C. 1977",
+      "D. 1999",
+      "E. 2004"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Pada tahun 2017, diselenggarakan Pemilihan Kepala Daerah secara serentak yang berlangsung di...",
+    "options": [
+      "A. 7 provinsi, 77 kabupaten, dan 17 kota",
+      "B. 7 provinsi, 77 kabupaten, dan 18 kota",
+      "C. 7 provinsi, 76 kabupaten, dan 18 kota",
+      "D. 8 provinsi, 76 kabupaten, dan 18 kota",
+      "E. 9 provinsi, 75 kabupaten, dan 19 kota"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Kapan pertama kali diselenggarakan Pemilihan Kepala Derah secara langsung?",
+    "options": [
+      "A. Tahun 1999",
+      "B. Tahun 2001",
+      "C. Tahun 2002",
+      "D. Tahun 2004",
+      "E. Tahun 2005"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Pemilihan Presiden dan Wakil Presiden secara langsung merupakan produk amandemen UUD 1945 yang keberapa?",
+    "options": [
+      "A. Amandemen Pertama",
+      "B. Amandemen Kedua",
+      "C. Amandemen Ketiga",
+      "D. Amandemen Keempat",
+      "E. Amandemen Kelima"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Berapa jumlah partai politik yang berhak menjadi peserta dalam penyelenggaraan Pemilu tahun 2004?",
+    "options": [
+      "A. 24 Partai Politik",
+      "B. 10 Partai Politik",
+      "C. 3 Partai Politik",
+      "D. 172 Partai Politik",
+      "E. 48 Partai Politik"
+    ],
+    "answer": 0,
+    "explanation": "-"
+  },
+  {
+    "q": "Lambang negara Republik Indonesia adalah?",
+    "options": [
+      "A. Burung Garuda",
+      "B. Burung Ealng",
+      "C. Garuda",
+      "D. Garuda Pancasila",
+      "E. Burung Cendrawasih"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Berapakah jumlah Pemilih setiap TPS sesuai UU No. 10 tahun 2016?",
+    "options": [
+      "A. Paling sedikit 500 orang",
+      "B. Paling banyak 500 orang",
+      "C. Paling sedikit 800 orang",
+      "D. Paling banyak 800 orang",
+      "E. Harus berjumlah 800 orang"
+    ],
+    "answer": 3,
+    "explanation": "-"
+  },
+  {
+    "q": "Berapakah jumlah Surat Suara yang tersedia di TPS?",
+    "options": [
+      "A. Paling sedikit sebanyak 800 lembar",
+      "B. Sejumlah Pemilih di DPT",
+      "C. Paling sedikit sebanyak 500 lembar",
+      "D. 2,5% dari jumlah pemilih di DPT",
+      "E. Sejumlah pemilih di DPT ditambah 2.5% dari DPT"
+    ],
+    "answer": 4,
+    "explanation": "-"
+  },
+  {
+    "q": "Pencocokan dan penelitian (pencoklitan) dalam pemutakhiran data pemilihan dilakukan oleh...",
+    "options": [
+      "A. Kelompok penyelenggara Pemungutan suara",
+      "B. Petugas sensus",
+      "C. Petugas pemutakhiran data pemilih",
+      "D. Panitia pemungutan suara",
+      "E. Komisi pemilihan umum"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Pemilihan yang memilih di TPS sesuai domisili KTP pada pemilu 2024 akan memperoleh surat suara sebanyak?",
+    "options": [
+      "A. 7 surat suara",
+      "B. 6 surat suara",
+      "C. 5 surat suara",
+      "D. 4 surat suara",
+      "E. 3 surat suara"
+    ],
+    "answer": 2,
+    "explanation": "-"
+  },
+  {
+    "q": "Beberapa lama masa kampanye pada pemilihan serentak tahun 2024?",
+    "options": [
+      "A. Selama 14 hari dan berakhir 3 hari sebelum pemilihan",
+      "B. Selama 21 hari dan berakhir 3 hari sebelum pemilihan",
+      "C. Selama 30 hari dan berakhir 3 hari sebelum pemilihan",
+      "D. Selama 14 hari dan berakhir 7 hari sebelum pemilihan",
+      "E. Selama 14 hari dan berakhir sebelum pemilihan\n \n \nKompetensi Manajerial"
+    ],
+    "answer": 0,
+    "explanation": "-"
   }
+];
 
-  function pilihBarang(barang) {
-    document.getElementById("namaBarang").value = barang.nama;
-    document.getElementById("listDropdown").innerHTML = "";
-    const info = `
-      <strong>Kode:</strong> ${barang.kode}<br>
-      <strong>Nama:</strong> ${barang.nama}<br>
-      <strong>Stok:</strong> ${barang.stok}<br>
-      <strong>Harga:</strong> Rp ${barang.harga.toLocaleString()}
-    `;
-    const infoBox = document.getElementById("infoBarang");
-    infoBox.innerHTML = info;
-    infoBox.style.display = "block";
-    selectedBarang = barang;
-  }
+    let currentQuestion = 0;
+    let score = 0;
+    let answers = [];
+    let timerInterval;
+    let timeLeft = 3600;
 
-  function tambahRekap() {
-    const jumlah = parseInt(document.getElementById("jumlah").value);
-    if (!selectedBarang || isNaN(jumlah) || jumlah <= 0) {
-      alert("Pilih barang dan masukkan jumlah yang valid.");
-      return;
+    function startQuiz() {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      showQuestion();
+      startTimer();
     }
 
-    rekapList.push({ ...selectedBarang, jumlah });
-    tampilkanRekap();
+    function startTimer() {
+      const timerEl = document.getElementById("timer");
+      timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          submitQuiz();
+        } else {
+          timeLeft--;
+          const mins = Math.floor(timeLeft / 60);
+          const secs = timeLeft % 60;
+          timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
 
-    document.getElementById("namaBarang").value = "";
-    document.getElementById("jumlah").value = "";
-    document.getElementById("infoBarang").style.display = "none";
-    selectedBarang = null;
-  }
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      const container = document.getElementById("question-container");
+      container.innerHTML = `
+        <div class="question-box">
+          <div class="text-xl font-bold">Soal ${currentQuestion + 1}:</div>
+          <p class="mt-2">${q.q}</p>
+          <div class="options">
+            ${q.options.map((opt, i) => `
+              <label><input type="radio" name="answer" value="${i}" ${answers[currentQuestion] === i ? 'checked' : ''}/> ${opt}</label>
+            `).join('')}
+          </div>
+          <div class="nav-buttons">
+            ${currentQuestion > 0 ? '<button class="btn btn-prev" onclick="prevQuestion()">← Prev</button>' : '<div></div>'}
+            ${currentQuestion < questions.length - 1 ? '<button class="btn btn-next" onclick="nextQuestion()">Next →</button>' : '<button class="btn btn-submit" onclick="submitQuiz()">Kirim Jawaban</button>'}
+          </div>
+        </div>
+      `;
 
-  function tampilkanRekap() {
-    const box = document.getElementById("rekapTransaksi");
-    const totalBox = document.getElementById("totalHarga");
-    let total = 0;
-    box.innerHTML = '<h3>Rekap Transaksi</h3>' + rekapList.map(item => {
-      const subtotal = item.harga * item.jumlah;
-      total += subtotal;
-      return `<div><strong>${item.nama}</strong> (${item.kode}) - ${item.jumlah} pcs x Rp ${item.harga.toLocaleString()} = Rp ${subtotal.toLocaleString()}</div>`;
-    }).join("");
-    box.style.display = "block";
-    totalBox.innerHTML = `Total Harga: Rp ${total.toLocaleString()}`;
-    totalBox.style.display = "block";
-  }
+      document.querySelectorAll('input[name="answer"]').forEach(input => {
+        input.addEventListener('change', e => {
+          answers[currentQuestion] = parseInt(e.target.value);
+        });
+      });
+    }
 
-  function unduhExcel() {
-    let csvContent = "data:text/csv;charset=utf-8,Kode,Nama Barang,Jumlah,Harga Satuan,Subtotal\n";
-    rekapList.forEach(item => {
-      const subtotal = item.harga * item.jumlah;
-      csvContent += `${item.kode},${item.nama},${item.jumlah},${item.harga},${subtotal}\n`;
-    });
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion();
+      }
+    }
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "rekap_transaksi.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion();
+      }
+    }
 
-  function cetakStruk() {
-    let struk = "=== STRUK PEMBELIAN ===\n";
-    let total = 0;
-    rekapList.forEach(item => {
-      const subtotal = item.harga * item.jumlah;
-      total += subtotal;
-      struk += `${item.nama} (${item.jumlah} x Rp ${item.harga.toLocaleString()}) = Rp ${subtotal.toLocaleString()}\n`;
-    });
-    struk += `\nTOTAL: Rp ${total.toLocaleString()}\n\nTerima kasih!`;
-    alert(struk);
-  }
-</script>
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      document.getElementById("quiz-screen").classList.add("hidden");
+      document.getElementById("result-screen").classList.remove("hidden");
+
+      let resultHTML = `<div class="results"><h2>Hasil Kuis</h2><p>Skor Anda: `;
+      score = 0;
+      questions.forEach((q, i) => {
+        const correct = q.answer === answers[i];
+        if (correct) score++;
+      });
+      resultHTML += `${score} / ${questions.length}</p><hr/>`;
+
+      questions.forEach((q, i) => {
+        const userAns = answers[i];
+        resultHTML += `<div><b>Soal ${i+1}:</b> ${q.q}<br/>
+          Jawaban Anda: ${q.options[userAns] || "-"} ${userAns === q.answer ? '✅' : '❌'}<br/>
+          Jawaban Benar: ${q.options[q.answer]}<br/>
+          <i>${q.explanation || ''}</i>
+          <hr/></div>`;
+      });
+
+      resultHTML += '</div>';
+      document.getElementById("result-screen").innerHTML = resultHTML;
+    }
+  </script>
 </body>
 </html>
