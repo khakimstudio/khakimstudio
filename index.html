@@ -1,698 +1,319 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Pemilu - Gaya Baru</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        :root {
-            --maroon: #8A0303;
-            --maroon-dark: #6a0202;
-            --light-grey: #f0f0f0; /* Slightly lighter grey for options */
-            --medium-grey: #e0e0e0;
-            --dark-grey: #555;
-            --white: #ffffff;
-            --black: #333333;
-            --green: #4CAF50;
-            --red: #f44336;
-            --orange: #FFA500; /* Submit button color */
-            --border-radius-sm: 4px;
-            --border-radius-md: 12px; /* More pronounced radius */
-            --border-radius-lg: 16px;
-            --border-radius-xl: 24px; /* For submit button */
-            --border-radius-round: 50%;
-            --shadow-light: 0 2px 5px rgba(0, 0, 0, 0.1);
-            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
-            --transition-duration: 0.4s; /* Smoother transition */
-            --easing-function: ease-in-out;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            height: 100%; /* Ensure html takes full height */
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--maroon); /* Maroon background for the whole page */
-            color: var(--black);
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Align to top */
-            min-height: 100%;
-            padding: 15px;
-            overflow-x: hidden;
-        }
-
-        /* Main container for the app view */
-        .app-container {
-             width: 100%;
-             max-width: 450px; /* Mobile focus */
-             display: flex;
-             flex-direction: column;
-             position: relative; /* Needed for screen positioning */
-             min-height: calc(100vh - 30px); /* Attempt to fill viewport height */
-             justify-content: space-between; /* Push navigation down */
-        }
-
-
-        /* --- Screens --- */
-        .screen {
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 1;
-            transition: opacity var(--transition-duration) var(--easing-function), transform var(--transition-duration) var(--easing-function);
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Center content horizontally */
-             min-height: inherit; /* Take full height of parent */
-             padding-top: 60px; /* Space for potential absolute header */
-             padding-bottom: 100px; /* Space for potential absolute footer */
-        }
-
-        .screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.95); /* Slight scale down effect */
-            /* transform: translateX(100%); // Alternative slide */
-        }
-        .screen.visible {
-             opacity: 1;
-             transform: scale(1);
-             /* transform: translateX(0); */
-             pointer-events: auto;
-        }
-
-        /* --- Start & Result Screens Styling --- */
-        #start-screen, #result-screen {
-            justify-content: center; /* Center content vertically */
-            text-align: center;
-            color: var(--white); /* White text on maroon background */
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-
-        #start-screen h1, #result-screen h2 {
-            color: var(--white);
-            margin-bottom: 15px;
-            font-size: 2em;
-        }
-        #start-screen p {
-            color: var(--medium-grey);
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-        #start-button, #restart-button {
-            background-color: var(--white);
-            color: var(--maroon);
-            font-size: 1.2em;
-            padding: 12px 30px;
-            font-weight: bold;
-        }
-        #result-screen #score-display {
-             font-size: 3em;
-             font-weight: bold;
-             color: var(--white);
-             margin-bottom: 5px;
-        }
-        #result-screen #score-max {
-             font-size: 1.1em;
-             color: var(--medium-grey);
-             margin-bottom: 15px;
-        }
-         #result-screen #feedback-summary {
-             font-size: 1em;
-             color: var(--white);
-             margin-bottom: 30px;
-         }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kuis Kepemiluan - 100 Soal</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: maroon;
+      color: white;
+      padding: 1em;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .timer {
+      font-size: 1.2em;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 1em;
+    }
+    .question-card {
+      background: white;
+      padding: 1.5em;
+      margin: 1em 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .options label {
+      display: block;
+      padding: 0.5em;
+      border-radius: 6px;
+      margin: 0.3em 0;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .options input {
+      margin-right: 10px;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1em;
+    }
+    button {
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.5em;
+      color: white;
+      background: maroon;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button.green {
+      background: green;
+      border-radius: 8px;
+      width: auto;
+      padding: 0.5em 1.5em;
+      font-size: 1em;
+      margin-top: 1em;
+    }
+    #startBtn {
+      padding: 1em 4em;
+      background: orange;
+      color: white;
+      border: none;
+      font-size: 1.2em;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: auto;;
 
 
-        /* --- Quiz Screen Specific Structure --- */
-         #quiz-screen {
-             padding: 0; /* Remove screen padding */
-             align-items: stretch; /* Allow children to stretch full width */
-             justify-content: space-between; /* Space header, card, nav */
-         }
-
-        .quiz-header {
-            color: var(--white);
-            padding: 15px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            position: fixed; /* Fixed header */
-            top: 0;
-            left: 0;
-             max-width: inherit; /* Respect parent max-width */
-             margin: 0 auto; /* Center fixed element */
-             right: 0;
-             background: var(--maroon); /* Ensure background */
-             z-index: 100;
-             /* Box shadow optional for fixed header */
-             /* box-shadow: var(--shadow-light); */
-        }
-        .quiz-header h2 {
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        #timer {
-            font-size: 1em;
-            font-weight: bold;
-             background-color: rgba(255, 255, 255, 0.1); /* Subtle background */
-             padding: 4px 10px;
-             border-radius: var(--border-radius-sm);
-        }
-
-        /* The White Card for Questions */
-        #quiz-card {
-             background-color: var(--white);
-             border-radius: var(--border-radius-lg);
-             box-shadow: var(--shadow-medium);
-             padding: 20px;
-             width: 100%;
-             margin-top: 60px; /* Space below fixed header */
-             margin-bottom: 20px; /* Space above fixed nav */
-             position: relative; /* For question container positioning */
-             overflow: hidden; /* Clip question transitions */
-             min-height: 500px; /* Give card some base height */
-        }
-
-        #question-counter {
-             font-size: 0.9em;
-             color: var(--dark-grey);
-             margin-bottom: 15px;
-             display: block; /* Ensure it takes its own line */
-        }
-
-        .question-container {
-            width: 100%;
-            position: absolute; /* Position for transition */
-            top: 55px; /* Adjust based on padding and counter height */
-            left: 0;
-            padding: 0 20px 20px 20px; /* Match card padding */
-            opacity: 1;
-            /* Apply transition here for smoothness */
-            transition: transform var(--transition-duration) var(--easing-function), opacity var(--transition-duration) var(--easing-function);
-        }
-
-        /* Animation States for Questions */
-        .question-container.next-enter {
-            opacity: 0;
-            transform: translateX(30px);
-        }
-        .question-container.next-exit {
-             opacity: 0;
-             transform: translateX(-30px);
-        }
-        .question-container.prev-enter {
-             opacity: 0;
-             transform: translateX(-30px);
-        }
-         .question-container.prev-exit {
-             opacity: 0;
-             transform: translateX(30px);
-         }
-        .question-container.active {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        #question-text {
-            font-size: 1.2em;
-            margin-bottom: 25px; /* More space */
-            color: var(--black);
-            font-weight: bold;
-        }
-
-        .options-container label {
-            display: flex; /* Use flex for alignment */
-            align-items: center; /* Vertically center */
-            background-color: var(--light-grey);
-            border: 1px solid var(--light-grey); /* Border same color initially */
-            border-radius: var(--border-radius-md); /* Rounded corners */
-            padding: 12px 15px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; /* Faster feedback on hover/select */
-            text-align: left;
-        }
-        .options-container label:hover {
-            background-color: var(--medium-grey); /* Subtle hover */
-        }
-
-        .options-container input[type="radio"] {
-            display: none; /* Hide default radio */
-        }
-
-        /* Style for selected option */
-        .options-container input[type="radio"]:checked + span {
-            /* No specific style needed on span if label is styled */
-        }
-        .options-container label.selected {
-             background-color: #e0dcdc; /* Slightly darker selection */
-             border-color: var(--maroon-dark); /* Maroon border when selected */
-             font-weight: bold;
-        }
-
-        /* Navigation area below the card */
-        .quiz-navigation {
-             width: 100%;
-             padding: 15px 15px;
-             display: flex;
-             justify-content: space-between; /* Space out arrows */
-             align-items: center;
-             position: fixed; /* Fixed navigation */
-             bottom: 0;
-             left: 0;
-             right: 0;
-             max-width: inherit; /* Respect parent max-width */
-             margin: 0 auto; /* Center fixed element */
-             background: var(--maroon); /* Ensure background */
-             z-index: 100;
-        }
-         /* Central Submit Button Container */
-         .submit-container {
-             position: absolute;
-             left: 50%;
-             transform: translateX(-50%);
-             bottom: 15px; /* Align with arrows */
-             z-index: 101; /* Above arrows if needed */
-         }
-
-
-        /* --- Buttons --- */
-        .btn {
-            border: none;
-            border-radius: var(--border-radius-md);
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease-in-out;
-            text-align: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold; /* Make button text bold */
-        }
-        .btn:active {
-             transform: scale(0.97); /* Press down effect */
-        }
-        .btn:disabled {
-            opacity: 0.5; /* Use opacity for disabled state */
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
-        .btn-round {
-            background-color: var(--maroon-dark); /* Slightly darker than bg */
-            color: var(--white);
-            border-radius: var(--border-radius-round);
-            width: 50px; /* Slightly larger */
-            height: 50px;
-            padding: 0;
-            font-size: 1.4em;
-            box-shadow: var(--shadow-light);
-        }
-        .btn-round:hover {
-             background-color: #580101; /* Even darker hover */
-        }
-        .btn-round:disabled {
-            background-color: var(--maroon-dark); /* Keep color but change opacity */
-        }
-
-        #submit-button {
-            background-color: var(--orange);
-            color: var(--white);
-            border-radius: var(--border-radius-xl); /* More rounded */
-            padding: 12px 25px; /* Bigger padding */
-            font-size: 1.1em;
-            box-shadow: var(--shadow-medium);
-        }
-        #submit-button:hover {
-            background-color: #e69500; /* Darker orange */
-        }
-        #submit-button i {
-            margin-right: 8px; /* Space between icon and text */
-        }
-
-        /* Feedback styles (if showing after submit) */
-         .options-container label.correct {
-             background-color: #d4edda;
-             border-color: var(--green);
-             color: #155724;
-         }
-         .options-container label.incorrect {
-              background-color: #f8d7da;
-              border-color: var(--red);
-              color: #721c24;
-          }
-          .options-container label.reveal-correct {
-               /* Force highlight correct answer */
-               background-color: #d4edda !important;
-               border-color: var(--green) !important;
-               color: #155724 !important;
-          }
-    </style>
+    }
+    #result {
+      padding: 1em;
+      background: white;
+      margin: 2em 0;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>LATIHAN SOAL PPPK TEKNIS KPU</h1>
+    <div class="timer" id="timer">60:00</div>
+  </header>
+  <div class="container">
+    <button id="startBtn" onclick="startQuiz()">Mulai</button>
+    <div id="quizContainer" style="display:none;"></div>
+    <div id="result" style="display:none;"></div>
+  </div>
+  <script>
+const questions = [
+  { "soal": "1. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "2. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "3. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "4. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "5. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "6. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "7. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "8. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "9. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "10. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "11. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "12. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "13. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "14. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "15. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "16. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "17. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "18. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "19. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "20. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "21. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "22. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "23. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "24. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "25. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "26. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "27. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "28. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "29. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "30. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "31. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "32. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "33. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "34. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "35. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "36. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "37. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "38. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "39. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "40. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "41. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "42. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "43. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "44. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "45. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "46. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "47. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "48. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "49. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "50. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "51. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "52. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "53. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "54. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "55. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "56. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "57. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "58. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "59. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "60. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "61. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "62. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "63. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "64. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "65. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "66. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "67. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "68. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "69. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "70. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "71. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "72. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "73. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "74. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "75. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "76. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "77. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "78. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "79. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "80. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "81. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "82. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "83. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "84. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "85. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "86. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "87. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "88. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "89. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "90. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "91. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "92. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "93. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "94. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "95. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "96. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "97. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "98. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+  { "soal": "99. Apa nama lembaga penyelenggara pemilu di Indonesia?", "pilihan": {"A": "KPK", "B": "KPU", "C": "BPK", "D": "MA"}, "jawaban": "B", "pembahasan": "KPU (Komisi Pemilihan Umum) adalah lembaga resmi yang menyelenggarakan pemilu di Indonesia." },
+  { "soal": "100. Siapa yang berhak memilih dalam pemilu di Indonesia?", "pilihan": {"A": "Warga negara asing", "B": "Warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah", "C": "Anak di bawah umur", "D": "Anggota TNI aktif"}, "jawaban": "B", "pembahasan": "Pemilih dalam pemilu harus WNI berusia minimal 17 tahun atau sudah menikah, sesuai UU Pemilu." },
+];
 
-<div class="app-container">
+let currentQuestion = 0;
+let score = 0;
+let userAnswers = [];
 
-    <div id="start-screen" class="screen visible">
-        <h1>Kuis Pemilu</h1>
-        <p>Uji pengetahuanmu tentang Pemilihan Umum di Indonesia!</p>
-        <button id="start-button" class="btn">Mulai Kuis</button>
-    </div>
+let timerInterval;
+let totalSeconds = 60 * 60;
 
-    <div id="quiz-screen" class="screen hidden">
-        <div class="quiz-header">
-            <h2>Kuis Pemilu</h2>
-            <span id="timer">--:--</span>
-        </div>
+function startQuiz() {
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("quizContainer").style.display = "block";
+  renderQuestion();
+  startTimer();
+}
 
-        <div id="quiz-card">
-            <span id="question-counter">Soal 1/50</span>
-            <div id="current-question-area">
-                </div>
-        </div>
-
-         <div class="quiz-navigation">
-             <button id="prev-button" class="btn btn-round" title="Soal Sebelumnya">
-                 <i class="fas fa-arrow-left"></i>
-             </button>
-             <div class="submit-container"> <button id="submit-button" class="btn hidden" title="Kirim Jawaban">
-                     <i class="fas fa-check"></i> Kirim Jawaban
-                 </button>
-             </div>
-             <button id="next-button" class="btn btn-round" title="Soal Berikutnya">
-                 <i class="fas fa-arrow-right"></i>
-             </button>
-         </div>
-    </div>
-
-    <div id="result-screen" class="screen hidden">
-        <h2>Hasil Kuis</h2>
-        <div id="score-display">0</div>
-        <div id="score-max">dari 100 Poin</div>
-        <div id="feedback-summary"></div>
-        <button id="restart-button" class="btn">Ulangi Kuis</button>
-    </div>
-
-</div>
-
-<script>
-    // --- Quiz Data (Same as before) ---
-    const quizData = [
-        { n: 1, q: "Apa tugas DKPP?", o: ["Menyelenggarakan pemilu", "Menetapkan hasil pemilu", "Menerima dan memutus laporan pelanggaran kode etik penyelenggara pemilu", "Mengawasi kampanye"], a: "C" },
-        { n: 2, q: "Kapan tahapan penyelenggaraan pemilu dimulai?", o: ["12 bulan sebelum pemilu", "24 bulan sebelum pemilu", "20 bulan sebelum hari pemungutan suara", "6 bulan sebelum pemilu"], a: "C" },
-        { n: 3, q: "Kapan pemungutan suara di luar negeri dilaksanakan?", o: ["Setelah pemilu dalam negeri", "Harus bersamaan dengan pemilu dalam negeri", "Dapat bersamaan atau sebelum hari pemungutan suara di dalam negeri", "Hanya setelah perhitungan suara"], a: "C" },
-        { n: 4, q: "Apa syarat kepengurusan partai politik untuk menjadi peserta pemilu?", o: ["100% kabupaten/kota di Indonesia", "Kepengurusan di seluruh provinsi dan 75% kabupaten/kota", "Hanya pengurus pusat", "Minimal 25% kecamatan"], a: "B" },
-        { n: 5, q: "Berapa jumlah tahapan pemilu menurut UU?", o: ["7", "9", "10", "11"], a: "D" },
-        { n: 6, q: "Pencegahan dan penindakan atas sengketa proses pemilu adalah tugas siapa?", o: ["KPU", "Bawaslu", "Mahkamah Konstitusi", "DKPP"], a: "B" },
-        { n: 7, q: "Tahapan Pemilu diatur dalam...?", o: ["Pasal 93", "Pasal 176", "Pasal 167", "Pasal 183"], a: "C" },
-        { n: 8, q: "Kapan pendaftaran partai politik ditetapkan?", o: ["18 bulan sebelum pemungutan suara", "20 bulan sebelum pemilu", "Setelah masa kampanye", "14 bulan sebelum pemilu"], a: "A" },
-        { n: 9, q: "Kapan partai politik ditetapkan sebagai peserta pemilu?", o: ["12 bulan sebelum pemilu", "18 bulan sebelum pemilu", "14 bulan sebelum hari pemungutan suara", "20 bulan sebelum pemilu"], a: "C" },
-        { n: 10, q: "Berapa jumlah dukungan minimal calon DPD di provinsi dengan penduduk hingga 1 juta?", o: ["500 pemilih", "1.000 pemilih", "2.000 pemilih", "750 pemilih"], a: "B" },
-        { n: 11, q: "Apa yang dimaksud dengan masa tenang dalam pemilu?", o: ["Masa kampanye intensif", "Hari libur nasional", "Waktu menjelang hari pemungutan suara tanpa kampanye", "Waktu penghitungan suara"], a: "C" },
-        { n: 12, q: "Apa batas usia minimal calon anggota DPD?", o: ["17 tahun", "21 tahun", "25 tahun", "30 tahun"], a: "B" },
-        { n: 13, q: "Lembaga yang berwenang menyelesaikan sengketa hasil pemilu presiden adalah...?", o: ["KPU", "Bawaslu", "Mahkamah Agung", "Mahkamah Konstitusi"], a: "D" },
-        { n: 14, q: "Apa yang dilakukan pada tahap rekapitulasi suara?", o: ["Kampanye", "Pemungutan suara", "Penetapan calon", "Penghitungan hasil dari seluruh TPS"], a: "D" },
-        { n: 15, q: "Apa arti dari pemilu serentak?", o: ["Dilakukan setiap minggu", "Hanya satu jenis pemilu", "Dilaksanakan dalam satu waktu untuk beberapa jenis pemilu", "Hanya melibatkan satu provinsi"], a: "C" },
-        { n: 16, q: "Siapa yang bertanggung jawab terhadap logistik pemilu?", o: ["DKPP", "KPU", "Bawaslu", "Presiden"], a: "B" },
-        { n: 17, q: "Apa tujuan kampanye pemilu?", o: ["Menyebarkan hoaks", "Mempengaruhi pemilih secara ilegal", "Meningkatkan partisipasi pemilih secara sadar", "Menjatuhkan lawan politik"], a: "C" },
-        { n: 18, q: "Berapa lama masa jabatan anggota KPU pusat?", o: ["3 tahun", "5 tahun", "7 tahun", "8 tahun"], a: "B" },
-        { n: 19, q: "Siapa yang mengesahkan perolehan suara pemilu secara nasional?", o: ["Presiden", "Mahkamah Agung", "KPU", "DPR"], a: "C" },
-        { n: 20, q: "Apa jenis sanksi terhadap pelanggaran administrasi pemilu?", o: ["Pidana langsung", "Teguran dan pembatalan keikutsertaan", "Pencabutan KTP", "Diskualifikasi calon presiden"], a: "B" },
-        { n: 21, q: "Apa fungsi utama Mahkamah Konstitusi dalam pemilu?", o: ["Mengawasi pemilu", "Menetapkan calon presiden", "Menyelesaikan sengketa hasil pemilu", "Melantik pejabat KPU"], a: "C" },
-        { n: 22, q: "Apa syarat minimal usia pemilih dalam pemilu?", o: ["15 tahun", "16 tahun", "17 tahun", "18 tahun"], a: "C" },
-        { n: 23, q: "Apa kepanjangan dari KPU?", o: ["Komite Pemilihan Umum", "Komisi Pemilu Umum", "Komisi Pemilihan Umum", "Komando Pemilu Utama"], a: "C" },
-        { n: 24, q: "Apa bentuk partisipasi masyarakat dalam pemilu?", o: ["Golput", "Menghindari TPS", "Mengikuti kampanye tanpa suara", "Memberikan suara"], a: "D" },
-        { n: 25, q: "Berapa jumlah maksimal calon anggota DPR dari satu dapil?", o: ["5 orang", "10 orang", "7 orang", "3 orang"], a: "B" },
-        { n: 26, q: "Apa yang dilakukan KPU saat masa kampanye?", o: ["Menetapkan pemenang", "Menghentikan kampanye", "Mengatur dan mengawasi kampanye", "Melantik presiden"], a: "C" },
-        { n: 27, q: "Apa peran saksi dalam pemilu?", o: ["Menjadi juru bicara partai", "Mengawasi jalannya kampanye", "Menyampaikan visi misi calon", "Menyaksikan dan mengawal proses pemungutan dan penghitungan suara"], a: "D" },
-        { n: 28, q: "Berapa batas usia maksimal calon presiden menurut UU?", o: ["Tidak dibatasi", "60 tahun", "70 tahun", "75 tahun"], a: "A" },
-        { n: 29, q: "Apa tujuan pemilu?", o: ["Menciptakan konflik", "Memilih pemimpin dan wakil rakyat secara demokratis", "Menurunkan pemerintahan", "Memperkuat kekuasaan tertentu"], a: "B" },
-        { n: 30, q: "Siapa yang berwenang menetapkan daftar pemilih tetap (DPT)?", o: ["Bawaslu", "Kementerian Dalam Negeri", "KPU", "Partai Politik"], a: "C" },
-        { n: 31, q: "Apa yang dimaksud dengan pemilu legislatif?", o: ["Pemilihan presiden", "Pemilihan anggota DPR dan DPRD", "Pemilihan kepala daerah", "Pemilihan ketua KPU"], a: "B" },
-        { n: 32, q: "Siapa yang mencetak surat suara?", o: ["KPU", "Bawaslu", "Kemendagri", "DPR"], a: "A" },
-        { n: 33, q: "Apa syarat minimal dukungan untuk calon perseorangan presiden?", o: ["5% suara nasional", "10 juta suara", "10% kursi DPR", "20% kursi DPR atau 25% suara sah nasional"], a: "D" },
-        { n: 34, q: "Apa arti asas pemilu 'langsung'?", o: ["Dilakukan oleh pemerintah", "Tanpa perwakilan", "Pemilih memberikan suara secara langsung", "Hanya petugas yang memilih"], a: "C" },
-        { n: 35, q: "Siapa yang menetapkan daerah pemilihan (dapil)?", o: ["Presiden", "DPR", "KPU", "Bawaslu"], a: "C" },
-        { n: 36, q: "Apa yang dilakukan pemilih di bilik suara?", o: ["Menghitung suara", "Mencoblos surat suara", "Menyerahkan KTP", "Melihat hasil sementara"], a: "B" },
-        { n: 37, q: "Siapa yang bisa mengajukan gugatan hasil pemilu presiden?", o: ["Rakyat", "Partai politik manapun", "Pasangan calon peserta pemilu", "Bawaslu"], a: "C" },
-        { n: 38, q: "Apa arti pemilu yang 'adil'?", o: ["Semua calon menang", "Tidak ada penghitungan suara", "Setiap peserta mendapat perlakuan setara", "Hanya partai besar yang menang"], a: "C" },
-        { n: 39, q: "Apa tujuan daftar pemilih tetap (DPT)?", o: ["Menentukan hasil pemilu", "Mencegah pemilih ganda", "Menambah suara partai", "Mempercepat penghitungan suara"], a: "B" },
-        { n: 40, q: "Apa yang dimaksud kampanye negatif?", o: ["Kampanye menggunakan kekerasan", "Kampanye dengan kritik terhadap lawan berdasarkan fakta", "Kampanye gelap", "Kampanye tanpa izin"], a: "B" },
-        { n: 41, q: "Apa sanksi bagi pemilih yang mencoblos dua kali?", o: ["Tidak ada", "Teguran", "Pidana", "Pemilu diulang"], a: "C" },
-        { n: 42, q: "Apa yang dimaksud dengan pemilu presiden dua putaran?", o: ["Dua kali penghitungan", "Pemungutan suara ulang di daerah tertentu", "Pemilu diulang jika tidak ada yang mendapat suara mayoritas (>50%)", "Pemilu dilaksanakan dua hari"], a: "C" },
-        { n: 43, q: "Siapa yang dapat menjadi calon legislatif?", o: ["Siapa saja tanpa syarat", "Warga negara Indonesia yang memenuhi persyaratan", "Pegawai negeri aktif", "Anak di bawah umur"], a: "B" },
-        { n: 44, q: "Berapa persen ambang batas parlemen (parliamentary threshold)?", o: ["2%", "4%", "5%", "10%"], a: "B" },
-        { n: 45, q: "Apa arti 'pemilu luber dan jurdil'?", o: ["Langsung, bebas, rahasia, jujur, dan adil", "Lugas dan bersih", "Luang dan terbuka", "Lubang besar untuk mencoblos"], a: "A" },
-        { n: 46, q: "Siapa yang menjadi pengawas di TPS?", o: ["Ketua RT", "Panwas TPS", "Ketua KPU", "Saksi partai"], a: "B" },
-        { n: 47, q: "Apa tugas utama KPPS?", o: ["Mengatur kampanye", "Mengelola dana partai", "Melaksanakan pemungutan dan penghitungan suara di TPS", "Menetapkan dapil"], a: "C" },
-        { n: 48, q: "Apa bentuk kampanye yang dilarang?", o: ["Debat publik", "Pemberian uang atau barang kepada pemilih", "Penyampaian visi misi", "Pemasangan baliho"], a: "B" },
-        { n: 49, q: "Siapa yang dapat menyampaikan visi dan misi dalam kampanye?", o: ["Media", "Pendukung", "Calon dan/atau tim kampanye", "Petugas TPS"], a: "C" },
-        { n: 50, q: "Apa syarat hak memilih dalam pemilu?", o: ["Berumur 17 tahun atau sudah menikah", "Lulusan SMA", "Anggota partai", "Mempunyai NPWP"], a: "A" }
-    ];
-
-    // --- Elements ---
-    const appContainer = document.querySelector('.app-container');
-    const startScreen = document.getElementById('start-screen');
-    const quizScreen = document.getElementById('quiz-screen');
-    const resultScreen = document.getElementById('result-screen');
-    const startButton = document.getElementById('start-button');
-    const questionCounterEl = document.getElementById('question-counter');
-    const timerEl = document.getElementById('timer');
-    const currentQuestionArea = document.getElementById('current-question-area'); // Container within the card
-    const prevButton = document.getElementById('prev-button');
-    const nextButton = document.getElementById('next-button');
-    const submitButton = document.getElementById('submit-button');
-    const scoreDisplayEl = document.getElementById('score-display');
-    const scoreMaxEl = document.getElementById('score-max');
-    const feedbackSummaryEl = document.getElementById('feedback-summary');
-    const restartButton = document.getElementById('restart-button');
-
-    // --- Quiz State ---
-    let currentQuestionIndex = 0;
-    let userAnswers = {};
-    let score = 0;
-    let timerInterval;
-    let timeLeft = 30 * 60; // 30 minutes
-    const pointsPerQuestion = 2;
-    const totalQuestions = quizData.length;
-    const maxScore = totalQuestions * pointsPerQuestion;
-    let currentQuestionElement = null; // To manage transitions
-
-    // --- Functions ---
-
-    function startQuiz() {
-        currentQuestionIndex = 0;
-        userAnswers = {};
-        score = 0;
-        timeLeft = 30 * 60; // Reset timer
-        switchScreen(startScreen, quizScreen);
-        startTimer();
-        // Load the first question without animation initially
-        showQuestion(currentQuestionIndex, 'initial');
-        updateNavigation();
+function startTimer() {
+  timerInterval = setInterval(() => {
+    totalSeconds--;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    document.getElementById("timer").innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    if (totalSeconds <= 0) {
+      clearInterval(timerInterval);
+      showResult();
     }
+  }, 1000);
+}
 
-    function switchScreen(fromScreen, toScreen) {
-         if (fromScreen) {
-             fromScreen.classList.remove('visible');
-             fromScreen.classList.add('hidden');
-         }
-         if (toScreen) {
-             // Delay slightly to ensure the 'hidden' class is removed properly
-             setTimeout(() => {
-                 toScreen.classList.remove('hidden');
-                 toScreen.classList.add('visible');
-             }, 50); // Small delay
-         }
-     }
-
-    function showQuestion(index, direction = 'next') {
-        const questionData = quizData[index];
-        if (!questionData) return;
-
-        // Create new question container
-        const newQuestionContainer = document.createElement('div');
-        newQuestionContainer.className = 'question-container';
-        newQuestionContainer.id = `q-container-${index}`;
-
-        // Add Question Text
-        const questionTextEl = document.createElement('div');
-        questionTextEl.id = 'question-text';
-        questionTextEl.textContent = `${questionData.q}`; // Removed number for cleaner look like image
-        newQuestionContainer.appendChild(questionTextEl);
-
-        // Add Options
-        const optionsContainer = document.createElement('div');
-        optionsContainer.className = 'options-container';
-        optionsContainer.id = 'options';
-        const optionLetters = ['A', 'B', 'C', 'D'];
-        questionData.o.forEach((optionText, i) => {
-            const optionLetter = optionLetters[i];
-            const radioId = `q${index}_option${optionLetter}`;
-
-            const label = document.createElement('label');
-            label.htmlFor = radioId;
-
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = `question${index}`;
-            radio.value = optionLetter;
-            radio.id = radioId;
-            radio.addEventListener('change', handleOptionChange);
-
-            const span = document.createElement('span');
-            // span.textContent = `${optionLetter}. ${optionText}`; // Removing A, B, C, D prefix
-            span.textContent = `${optionText}`;
-            span.style.flexGrow = '1'; // Allow text to take space
-
-            label.appendChild(radio);
-            label.appendChild(span);
-            optionsContainer.appendChild(label);
-
-            if (userAnswers[index] === optionLetter) {
-                radio.checked = true;
-                label.classList.add('selected');
-            }
-        });
-        newQuestionContainer.appendChild(optionsContainer);
-
-        // Animation Logic
-        const oldQuestionElement = currentQuestionElement;
-
-        if (oldQuestionElement) {
-            // Add exit animation class to old element
-            oldQuestionElement.classList.remove('active');
-            oldQuestionElement.classList.add(direction === 'next' ? 'next-exit' : 'prev-exit');
-            // Remove old element after animation
-            oldQuestionElement.addEventListener('transitionend', () => {
-                if (oldQuestionElement.parentNode === currentQuestionArea) {
-                     currentQuestionArea.removeChild(oldQuestionElement);
-                }
-            }, { once: true });
-        }
-
-        // Add new element with enter animation start state
-        newQuestionContainer.classList.add(direction === 'next' ? 'next-enter' : (direction === 'prev' ? 'prev-enter' : 'active'));
-        currentQuestionArea.appendChild(newQuestionContainer);
-
-        // Trigger the enter animation (force reflow recommended)
-         requestAnimationFrame(() => { // First frame: Ensure element is in DOM with start state
-             requestAnimationFrame(() => { // Second frame: Apply active state to trigger transition
-                 newQuestionContainer.classList.remove('next-enter', 'prev-enter');
-                 newQuestionContainer.classList.add('active');
-             });
-         });
-
-        currentQuestionElement = newQuestionContainer; // Update reference
-
-        // Update counter
-        questionCounterEl.textContent = `Soal ${index + 1} dari ${totalQuestions}`;
+function renderQuestion() {
+  const q = questions[currentQuestion];
+  let html = `<div class='question-card'><h3>Soal ${currentQuestion + 1}</h3><p>${q.soal}</p><div class='options'>`;
+  ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
+    if (q.pilihan[opt]) {
+      html += `<label><input type='radio' name='option' value='${opt}'> ${opt}. ${q.pilihan[opt]}</label>`;
     }
+  });
+  html += `</div>`;
 
+  html += "<div class='nav-buttons'>";
+  if (currentQuestion > 0) {
+    html += "<button onclick='prevQuestion()'>&larr;</button>";
+  } else {
+    html += "<span></span>";
+  }
+  if (currentQuestion < questions.length - 1) {
+    html += "<button onclick='nextQuestion()'>&rarr;</button>";
+  } else {
+    html += "<button class='green' onclick='showResult()'>Kirim Jawaban</button>";
+  }
+  html += "</div></div>";
+  document.getElementById("quizContainer").innerHTML = html;
 
-    function handleOptionChange(event) {
-        const selectedValue = event.target.value;
-        const questionIndex = parseInt(event.target.name.replace('question', ''), 10);
-        userAnswers[questionIndex] = selectedValue;
+  const savedAnswer = userAnswers[currentQuestion];
+  if (savedAnswer) {
+    document.querySelectorAll('input[name=option]').forEach(radio => {
+      if (radio.value === savedAnswer) radio.checked = true;
+    });
+  }
 
-        const labels = event.target.closest('.options-container').querySelectorAll('label');
-        labels.forEach(lbl => lbl.classList.remove('selected'));
-        event.target.closest('label').classList.add('selected');
-    }
+  document.querySelectorAll('input[name=option]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      userAnswers[currentQuestion] = radio.value;
+    });
+  });
+}
 
-    function updateNavigation() {
-        prevButton.disabled = currentQuestionIndex === 0;
-        if (currentQuestionIndex === totalQuestions - 1) {
-            nextButton.classList.add('hidden'); // Hide right arrow
-            submitButton.classList.remove('hidden'); // Show submit button
-        } else {
-            nextButton.classList.remove('hidden'); // Show right arrow
-            submitButton.classList.add('hidden'); // Hide submit button
-        }
-    }
+function nextQuestion() {
+  if (currentQuestion < questions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  }
+}
 
-    function nextQuestion() {
-        if (currentQuestionIndex < totalQuestions - 1) {
-            currentQuestionIndex++;
-            showQuestion(currentQuestionIndex, 'next');
-            updateNavigation();
-        }
-    }
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    renderQuestion();
+  }
+}
 
-    function prevQuestion() {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            showQuestion(currentQuestionIndex, 'prev');
-            updateNavigation();
-        }
-    }
+function showResult() {
+  clearInterval(timerInterval);
+  let resultHTML = `<h2>Hasil Kuis</h2>`;
+  score = 0;
 
-    function startTimer() {
-        clearInterval(timerInterval);
-        timerEl.textContent = formatTime(timeLeft);
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            timerEl.textContent = formatTime(timeLeft);
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                 timerEl.textContent = "0:00";
-                 submitQuiz();
-            }
-        }, 1000);
-    }
+  questions.forEach((q, i) => {
+    const userAns = userAnswers[i] || '-';
+    const correct = q.jawaban;
+    const isCorrect = userAns === correct;
+    if (isCorrect) score++;
 
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-    }
+    resultHTML += `<div class='question-card'>
+      <h3>Soal ${i + 1}</h3>
+      <p>${q.soal}</p>
+      <p><strong>Jawaban Anda:</strong> ${userAns}</p>
+      <p><strong>Jawaban Benar:</strong> ${correct}</p>
+      <p><strong>Status:</strong> ${isCorrect ? "<span style='color:green'>Benar</span>" : "<span style='color:red'>Salah</span>"}</p>
+      <p><strong>Pembahasan:</strong> ${q.pembahasan}</p>
+    </div>`;
+  });
 
-     function submitQuiz() {
-         clearInterval(timerInterval);
-         score = 0;
-         let correctCount = 0;
-         quizData.forEach((question, index) => {
-             if (userAnswers[index] && userAnswers[index] === question.a) {
-                 score += pointsPerQuestion;
-                 correctCount++;
-             }
-         });
-
-         scoreDisplayEl.textContent = score;
-         scoreMaxEl.textContent = `dari ${maxScore} Poin`;
-         feedbackSummaryEl.textContent = `Anda menjawab ${correctCount} dari ${totalQuestions} soal dengan benar.`;
-
-         switchScreen(quizScreen, resultScreen);
-     }
-
-    function restartQuiz() {
-        switchScreen(resultScreen, startScreen);
-    }
-
-    // --- Event Listeners ---
-    startButton.addEventListener('click', startQuiz);
-    nextButton.addEventListener('click', nextQuestion);
-    prevButton.addEventListener('click', prevQuestion);
-    submitButton.addEventListener('click', submitQuiz);
-    restartButton.addEventListener('click', restartQuiz);
-
-</script>
-
+  resultHTML = `<div class='question-card'><h2>Skor Anda: ${score} dari ${questions.length}</h2></div>` + resultHTML;
+  document.getElementById("quizContainer").style.display = "none";
+  document.getElementById("result").innerHTML = resultHTML;
+  document.getElementById("result").style.display = "block";
+}
+  </script>
 </body>
 </html>
